@@ -5,7 +5,6 @@ import Item as ItemClass
 
 from tkinter import *
 from os import walk
-from PIL import ImageTk
 
 class CharacterList:
     def GetCurrentCharacter(self):
@@ -65,53 +64,21 @@ class CharacterList:
 
         #self.hGH.MainFrame.destroy()
 
-        self._ShowItemList()
+        self.hGH.ItemListView.ShowItemList(self.currentCharacter.GetInventory().GetList())
 
         self.hGH.MainFrame = Frame(self.root)
 
-        Button(self.hGH.MainFrame, text='(A)dd Item', width=30,  command=lambda: self.hGH.AreaSelect()).pack()
-        #self.MainFrame.bind('a', lambda e: self.hGH.AreaSelect())
+        Button(self.hGH.MainFrame, text='(A)dd Item', width=30,  command=lambda: self.hGH.ScreenCapture.AreaSelect()).pack()
+        self.hGH.MainFrame.bind('a', lambda e: self.hGH.ScreenCapture.AreaSelect())
 
         Button(self.hGH.MainFrame, text='Delete Item', width=30).pack()  #command=lambda: self.hGH.AreaSelect()).pack()
 
-        self.hGH.MainFrame.pack()
-
-    def _ShowItemList(self):
-        Label(self.hGH.CurrentViewFrame, text='Item List:').grid(row=0)
-
-        i = 0
-        for item in self.currentCharacter.GetInventory().GetList():
-            i += 1
-            
-            Button(self.hGH.CurrentViewFrame, text=item.GetName(), width=30,  command= lambda i=item: self._SelectItem(i)).grid(row=i, column=0)
-            Button(self.hGH.CurrentViewFrame, text='Delete', width=5, command= lambda i=item: self._DeleteItem(i)).grid(row=i, column=1)
-
-    def _SelectItem(self, item):
-        win = self.hGH.InitNewWindow()
-
-        Label(win, text=item.GetName()).pack(side=TOP)
-
-        win.itemImage = ImageTk.PhotoImage(file=item.GetFullPath())
-
-        buttonsFrame = Frame(win)
-
-        Label(win, image=win.itemImage).pack()
-
-        Button(buttonsFrame, text='(M)ove to other Character', width=30,  command= lambda: self._MoveToOtherCharacter()).grid(row=0, column=0, sticky=W, pady=4)
-        win.bind('m', lambda e: self._MoveToOtherCharacter())
-
-        Button(buttonsFrame, text='(D)elete', width=30,  command= lambda: self._DeleteItem(item, win)).grid(row=0, column=1, sticky=W, pady=4)
-        win.bind('d', lambda e: self._DeleteItem(item, win))
-
-        Button(buttonsFrame, text='(C)lose', width=30,  command= lambda: win.destroy()).grid(row=0, column=2, sticky=W, pady=4)
-        win.bind('c', lambda e: win.destroy())
-
-        buttonsFrame.pack()
+        self.hGH.MainFrame.grid()
 
     def _DeleteItem(self, item, win=None):
         self.currentCharacter.GetInventory().RemoveItemFromInventory(item)
         item.Delete()
-        self._ShowItemList()
+        self.hGH.ItemListView.ShowItemList(self.currentCharacter.GetInventory().GetList())
         if win:
             win.destroy()
 
@@ -131,7 +98,7 @@ class CharacterList:
             Button(self.hGH.CharacterListFrame, text=character.GetName(), width=30,  command= lambda c=character: self._SelectCharacter(c)).grid(row=i, column=0)
             Button(self.hGH.CharacterListFrame, text='Delete', width=5, command= lambda c=character: self._DeleteCharacter(c)).grid(row=i, column=1)
     
-    def __init__(self, hGH, root):
+    def __init__(self, hGH, root, itemList):
         self.root = root
         self.hGH = hGH
         
@@ -145,5 +112,7 @@ class CharacterList:
                 self.characters.append(character)
                 for (dirpath, dirnames, filenames) in walk(path + '\\' + dirname):
                     for file in filenames:
-                        item = ItemClass.Item(file, dirpath)
+                        #find item Data and fill it
+                        itemData = itemList.GetItemFromName(file.split('.')[0], None)
+                        item = ItemClass.Item(file, dirpath, itemData)
                         character.GetInventory().AddItemToInventory(item)

@@ -2,7 +2,7 @@ import os
 
 class Character:
     def GetPath(self):
-        return os.join('Characters', self.imageFile)
+        return os.path.join('Characters', self.name)
 
     def GetName(self):
         return self.name

@@ -7,8 +7,9 @@ class Inventory:
         self.capacity = self.capacity - item.Size()
 
     def RemoveItemFromInventory(self, item):
-        self.inventory.remove(item)
-        self.capacity = self.capacity + item.Size()
+        if item in self.inventory:
+            self.inventory.remove(item)
+            self.capacity = self.capacity + item.Size()
 
     def GetInventoryMaxCapacity(self):
         return 100 + 40
