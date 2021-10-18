@@ -1,9 +1,24 @@
 from tkinter import *
 from PIL import ImageTk
 
+import GlobalWindowSettings as GlobalWindowSettingsClass
+
 class ItemView:
+    def _MoveToOtherCharacter(self):
+        pass
+
+    def _UpdateImage(self):
+        pass
+    
+    def _DeleteItem(self, item, win=None):
+        self.currentCharacter.GetInventory().RemoveItemFromInventory(item)
+        item.Delete()
+        self.hGH.ItemListView.ShowItemList(self.currentCharacter.GetInventory().GetList())
+        if win:
+            win.destroy()
+
     def ShowItemWindow(self, item):
-        win = self.hGH.InitNewWindow()
+        win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
 
         Label(win, text=item.GetData().GetName()).pack(side=TOP)
 
@@ -12,6 +27,9 @@ class ItemView:
         buttonsFrame = Frame(win)
 
         Label(win, image=win.itemImage).pack()
+
+        Button(buttonsFrame, text='(U)pdate Image', width=30,  command= lambda: self._UpdateImage()).grid(row=0, column=0, sticky=W, pady=4)
+        win.bind('u', lambda e: self._UpdateImage())
 
         Button(buttonsFrame, text='(M)ove to other Character', width=30,  command= lambda: self._MoveToOtherCharacter()).grid(row=0, column=0, sticky=W, pady=4)
         win.bind('m', lambda e: self._MoveToOtherCharacter())

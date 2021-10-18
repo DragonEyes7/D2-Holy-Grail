@@ -8,15 +8,11 @@ import numpy as nm
 import pytesseract
 from PIL import Image, ImageEnhance, ImageGrab, ImageTk
 
-class ScreenCapture:
-    def InitNewWindow(self):
-        win = Toplevel()
-        win.config(bg="#232b25")
-        win.focus_force()
-        return win
+import GlobalWindowSettings as GlobalWindowSettingsClass
 
+class ScreenCapture:
     def ShowImage(self, image):
-        win = self.InitNewWindow()
+        win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
 
         win.image = ImageTk.PhotoImage(image)
 
@@ -36,12 +32,16 @@ class ScreenCapture:
         if len(self.ReadImageToString(rgbImg)) > 2:
             #Find item in database
             #get name from ItemData
-            item = self.HGH.ItemList.GetItemFromName(self.ReadImageToString(rgbImg).splitlines()[0], self.ReadImageToString(rgbImg).splitlines()[1])
-            itemName = item.GetName()
-            itemNameInputValue = StringVar(win, value=itemName)
+            itemName = self.ReadImageToString(rgbImg).splitlines()[0]
+            typeName = self.ReadImageToString(rgbImg).splitlines()[1]
 
-            #get type from ItemData
-            typeName = item.GetType()
+            item = self.HGH.ItemList.GetItemFromName(itemName, typeName)
+
+            if item:
+                itemName = item.GetName()
+                typeName = item.GetType()
+            
+            itemNameInputValue = StringVar(win, value=itemName)
             itemTypeInputValue = StringVar(win, value=typeName)
         
             nameFrame = Frame(win)

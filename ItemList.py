@@ -1,4 +1,5 @@
 import DataFeeder as DataFeederClass
+
 from difflib import SequenceMatcher
 
 class ItemList:
@@ -6,8 +7,14 @@ class ItemList:
         #print(self.UniqueList)
         pass
 
-    def Search(self, item):
-        pass
+    def Search(self, string):
+        itemList = []
+
+        for item in self.UniqueList:
+            if string in item.GetName():
+                itemList.append(item)
+
+        return itemList
 
     def GetItemFromName(self, itemName, itemType):
         bestMatchItem = None

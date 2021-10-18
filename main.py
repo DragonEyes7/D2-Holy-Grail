@@ -35,6 +35,11 @@ class HolyGrailHelper:
         self.CharacterListFrame = Frame(self.root)
         self.CurrentViewFrame = Frame(self.root)
 
+    def ClearCharacterListFrame(self):
+        self.CharacterListFrame.destroy()
+        self.CharacterListFrame = Frame(self.root)
+        self.CharacterListFrame.grid(row=0, column=0)
+
     def MainMenu(self):
         self.characterList = CharacterListClass.CharacterList(self, self.root, self.ItemList)
 

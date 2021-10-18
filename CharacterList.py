@@ -6,12 +6,14 @@ import Item as ItemClass
 from tkinter import *
 from os import walk
 
+import GlobalWindowSettings as GlobalWindowSettingsClass
+
 class CharacterList:
     def GetCurrentCharacter(self):
         return self.currentCharacter
 
     def CreateCharacterWindow(self):
-        win = self.hGH.InitNewWindow()
+        win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
 
         Label(win, text="Character Name").grid(row=0)
         
@@ -43,7 +45,8 @@ class CharacterList:
             win.destroy()
             character = self._CreateCharacter(characterName)
             self.characters.append(character)
-            self.ShowCharacterButtons()
+            self.characters.sort(key=lambda char: char.GetName().lower())
+            self.ShowCharacterButtons(True)
         else:
             ErrorLabel['text'] = "Character already Exist" 
 
@@ -57,35 +60,24 @@ class CharacterList:
                 os.rmdir(character.GetPath())
                 self.characters.remove(character)
 
-        self.ShowCharacterButtons()
+        self.ShowCharacterButtons(True)
 
     def _SelectCharacter(self, character):
+        if not hasattr(self, 'currentCharacter'):
+            self.hGH.MainFrame = Frame(self.root)
+
+            Button(self.hGH.MainFrame, text='(A)dd Item', width=30,  command=lambda: self.hGH.ScreenCapture.AreaSelect()).pack()
+            self.hGH.MainFrame.bind('a', lambda e: self.hGH.ScreenCapture.AreaSelect())
+
+            self.hGH.MainFrame.grid()
+
         self.currentCharacter = character
+        self.hGH.ItemListView.ShowItemListFromInventory(self.currentCharacter.GetInventory().GetList())
 
-        #self.hGH.MainFrame.destroy()
+    def ShowCharacterButtons(self, clear = False):
+        if clear:
+            self.hGH.ClearCharacterListFrame()
 
-        self.hGH.ItemListView.ShowItemList(self.currentCharacter.GetInventory().GetList())
-
-        self.hGH.MainFrame = Frame(self.root)
-
-        Button(self.hGH.MainFrame, text='(A)dd Item', width=30,  command=lambda: self.hGH.ScreenCapture.AreaSelect()).pack()
-        self.hGH.MainFrame.bind('a', lambda e: self.hGH.ScreenCapture.AreaSelect())
-
-        Button(self.hGH.MainFrame, text='Delete Item', width=30).pack()  #command=lambda: self.hGH.AreaSelect()).pack()
-
-        self.hGH.MainFrame.grid()
-
-    def _DeleteItem(self, item, win=None):
-        self.currentCharacter.GetInventory().RemoveItemFromInventory(item)
-        item.Delete()
-        self.hGH.ItemListView.ShowItemList(self.currentCharacter.GetInventory().GetList())
-        if win:
-            win.destroy()
-
-    def _MoveToOtherCharacter(self):
-        pass
-
-    def ShowCharacterButtons(self):
         Label(self.hGH.CharacterListFrame, text='Character List:').grid(row=0)
         
         #Maybe change the delete by an icon
