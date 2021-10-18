@@ -18,9 +18,9 @@ class CharacterList:
         Label(win, text="Character Name").grid(row=0)
         
         sv = StringVar()
-        sv.trace("w", lambda name, index, mode, sv=sv: self._CharacterNameEntryChanged(ErrorLabel, sv))
+        sv.trace_variable("w", lambda var, index, mode, sv=sv: self._CharacterNameEntryChanged(ErrorLabel, sv))
 
-        characterNameInput = Entry(win)
+        characterNameInput = Entry(win, textvariable=sv)
         characterNameInput.grid(row=0, column=1)
 
         ErrorLabel = Label(win, text='')
