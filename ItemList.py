@@ -7,15 +7,6 @@ class ItemList:
         #print(self.UniqueList)
         pass
 
-    def Search(self, string):
-        itemList = []
-
-        for item in self.UniqueList:
-            if string in item.GetName():
-                itemList.append(item)
-
-        return itemList
-
     def GetItemFromName(self, itemName, itemType):
         bestMatchItem = None
         bestMatchRatio = 0
@@ -30,3 +21,4 @@ class ItemList:
 
     def __init__(self):
         self.UniqueList = DataFeederClass.DataFeeder().FillItemList('Data\\CSV\\UniqueList.csv')
+        self.SetList = DataFeederClass.DataFeeder().FillItemList('Data\\CSV\\SetList.csv')

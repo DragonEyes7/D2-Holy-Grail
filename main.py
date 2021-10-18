@@ -47,7 +47,7 @@ class HolyGrailHelper:
         self.CurrentViewFrame.grid(row=0, column=1)
         
         self.characterList.ShowCharacterButtons()
-        self.ItemListView.ShowItemList(self.ItemList.UniqueList)
+        self.ItemListView.ShowAllItemList()
         
         Button(self.MainFrame, text='Create Character', width=30,  command=self.characterList.CreateCharacterWindow).pack()
 
