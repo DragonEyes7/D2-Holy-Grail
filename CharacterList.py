@@ -73,6 +73,7 @@ class CharacterList:
 
         self.currentCharacter = character
         self.hGH.ItemListView.ShowItemListFromInventory(self.currentCharacter.GetInventory().GetList())
+        self.ShowCharacterButtons(True)
 
     def ShowCharacterButtons(self, clear = False):
         if clear:
@@ -86,8 +87,11 @@ class CharacterList:
         i = 0
         for character in self.characters:
             i += 1
+            color = 'white'
+            if hasattr(self, 'currentCharacter') and character == self.currentCharacter:
+                color = 'green'
 
-            Button(self.hGH.CharacterListFrame, text=character.GetName(), width=30,  command= lambda c=character: self._SelectCharacter(c)).grid(row=i, column=0)
+            Button(self.hGH.CharacterListFrame, bg=color, text=character.GetName(), width=30,  command= lambda c=character: self._SelectCharacter(c)).grid(row=i, column=0)
             Button(self.hGH.CharacterListFrame, text='Delete', width=5, command= lambda c=character: self._DeleteCharacter(c)).grid(row=i, column=1)
     
     def __init__(self, hGH, root, itemList):
