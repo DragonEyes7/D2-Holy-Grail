@@ -5,7 +5,7 @@ from tkinter import *
 class ItemListView:
     def SearchBar(self):
         self.SearchValue = StringVar()
-        self.SearchValue.trace_variable("w", lambda var, index, mode, sv=self.SearchValue: self.Search(self.hGH.ItemList.UniqueList, sv))
+        self.SearchValue.trace_variable("w", lambda var, index, mode, sv=self.SearchValue: self.Search(self.hGH.ItemList.UniqueList, sv.get()))
         Label(self.ItemListOptions, text='Search:').grid(row=0, column=0)
         Entry(self.ItemListOptions, textvariable=self.SearchValue).grid(row=0, column=1)
 
@@ -21,9 +21,11 @@ class ItemListView:
         Button(self.ItemListOptions, text='All', width=10,  command= lambda: self.ShowAllItemList(sv.get())).grid(row=1, column=0)
         Button(self.ItemListOptions, text='Uniques', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=1)
         Button(self.ItemListOptions, text='Sets', width=10,  command= lambda: self.Search(self.hGH.ItemList.SetList, sv.get())).grid(row=1, column=2)
-        Button(self.ItemListOptions, text='Runes', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=3)
-        Button(self.ItemListOptions, text='Runewords', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=4)
+        Button(self.ItemListOptions, text='Runes', width=10,  command= lambda: self.Search(self.hGH.ItemList.RuneList, sv.get())).grid(row=1, column=3)
+        #Button(self.ItemListOptions, text='Runewords', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=4)
+        #Look on Characters and find the rares to fill a list
         Button(self.ItemListOptions, text='Rares', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=5)
+        #Look on Characters and find the crafted to fill a list
         Button(self.ItemListOptions, text='Crafted', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=6)
 
     def ShowItemListFromInventory(self, list):
@@ -38,12 +40,15 @@ class ItemListView:
 
     def ShowAllItemList(self, var=''):
         self.ClearItemList()
-        self.ShowItemList(self.hGH.ItemList.UniqueList, True, var)
-        self.ShowItemList(self.hGH.ItemList.SetList, True, var)
 
-    def ShowItemList(self, list, addToList=False, filter=''):
-        if not addToList:
-            self.ClearItemList()
+        fullList = self.hGH.ItemList.UniqueList + self.hGH.ItemList.SetList + self.hGH.ItemList.RuneList
+
+        fullList.sort(key=lambda i: i.GetName())
+
+        self.ShowItemList(fullList, var)
+
+    def ShowItemList(self, list, filter=''):
+        self.ClearItemList()
         
         i = 0
         for item in list:
@@ -53,28 +58,16 @@ class ItemListView:
 
         self.listBox.bind('<<ListboxSelect>>', self.OnItemSelected)
 
-    def RefreshItemList(self):
-        pass
-
     def ClearItemList(self):
         self.listBox.delete(0, END)
 
     def OnItemSelected(self, event):
         itemName = self.listBox.get(ANCHOR)
-        #show item
-        #itemView = ItemViewClass.ItemView()
-        #itemView.ShowItemWindow(event[0])
+        self.hGH.CharacterList.ShowCharacterWindowWithCurrentItem(itemName)
 
     def OnItemSelectedFromInventory(self, event):
-        itemName = self.listBox.get(ANCHOR)
-        #show item
         itemView = ItemViewClass.ItemView()
         itemView.ShowItemWindow(event[0])
-        #Open window with character owning this item
-        #Add this item
-            #Select a character
-            #take a screenshot
-            #save
 
     def __init__(self, hgh):
         self.hGH = hgh

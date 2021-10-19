@@ -41,15 +41,15 @@ class HolyGrailHelper:
         self.CharacterListFrame.grid(row=0, column=0)
 
     def MainMenu(self):
-        self.characterList = CharacterListClass.CharacterList(self, self.root, self.ItemList)
+        self.CharacterList = CharacterListClass.CharacterList(self, self.root, self.ItemList)
 
         self.CharacterListFrame.grid(row=0, column=0)
         self.CurrentViewFrame.grid(row=0, column=1)
         
-        self.characterList.ShowCharacterButtons()
+        self.CharacterList.ShowCharacterButtons()
         self.ItemListView.ShowAllItemList()
         
-        Button(self.MainFrame, text='Create Character', width=30,  command=self.characterList.CreateCharacterWindow).pack()
+        Button(self.MainFrame, text='Create Character', width=30,  command=self.CharacterList.CreateCharacterWindow).pack()
 
         Button(self.MainFrame, text='(Q)uit', width=30, command=lambda: self.root.destroy()).pack()
         self.MainFrame.bind('q', lambda e: self.root.destroy())

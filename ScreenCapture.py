@@ -6,7 +6,7 @@ from tkinter import *
 import cv2
 import numpy as nm
 import pytesseract
-from PIL import Image, ImageEnhance, ImageGrab, ImageTk
+from PIL import ImageEnhance, ImageGrab, ImageTk
 
 import GlobalWindowSettings as GlobalWindowSettingsClass
 
@@ -29,11 +29,13 @@ class ScreenCapture:
         Button(win, text='(U)pdage', width=30,  command=lambda: {self.AreaSelect(), win.destroy()}).pack(in_=bottom, side=LEFT)
         win.bind('u', lambda e: {self.AreaSelect(), win.destroy()})
         
-        if len(self.ReadImageToString(rgbImg)) > 2:
+        stringImage = self.ReadImageToString(rgbImg)
+
+        if len(stringImage) > 2:
             #Find item in database
             #get name from ItemData
-            itemName = self.ReadImageToString(rgbImg).splitlines()[0]
-            typeName = self.ReadImageToString(rgbImg).splitlines()[1]
+            itemName = stringImage.splitlines()[0]
+            typeName = stringImage.splitlines()[1]
 
             item = self.HGH.ItemList.GetItemFromName(itemName, typeName)
 

@@ -2,6 +2,13 @@ class Inventory:
     def GetList(self):
         return self.inventory
 
+    def GetItemFromName(self, itemName):
+        for item in self.inventory:
+            if item.GetData().GetName() == itemName:
+                return item
+
+        return None
+
     def AddItemToInventory(self, item):
         self.inventory.append(item)
         self.capacity = self.capacity - item.Size()

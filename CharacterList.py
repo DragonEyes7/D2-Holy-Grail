@@ -2,6 +2,7 @@ import os
 import Character as CharacterClass
 import Inventory as InventoryClass
 import Item as ItemClass
+import ItemView as ItemViewClass
 
 from tkinter import *
 from os import walk
@@ -11,6 +12,27 @@ import GlobalWindowSettings as GlobalWindowSettingsClass
 class CharacterList:
     def GetCurrentCharacter(self):
         return self.currentCharacter
+
+    def ShowCharacterWindowWithCurrentItem(self, itemName):
+        win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
+        found = False
+        i = 0
+        for character in self.characters:
+            i += 1
+            for item in character.GetInventory().GetList():
+                if itemName == item.GetData().GetName():
+                    Button(win, text=character.GetName(), width=30,  command= lambda c=character: self._SelectCharacter(c)).grid(row=i, column=0)
+                    Button(win, text='Show Item', width=9, command= lambda c=character, i=itemName: self._ShowItem(c, i)).grid(row=i, column=1)
+                    found = True
+
+        if not found:
+            Label(win, text='No Character found with this item').grid()
+
+    def _ShowItem(self, character, itemName):
+        itemView = ItemViewClass.ItemView()
+        item = character.GetInventory().GetItemFromName(itemName)
+        if item:
+            itemView.ShowItemWindow(item)
 
     def CreateCharacterWindow(self):
         win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
@@ -75,6 +97,11 @@ class CharacterList:
         self.hGH.ItemListView.ShowItemListFromInventory(self.currentCharacter.GetInventory().GetList())
         self.ShowCharacterButtons(True)
 
+    def _UnselectCharacter(self):
+        self.currentCharacter = None
+        self.ShowCharacterButtons(True)
+        self.hGH.ItemListView.ShowAllItemList()
+
     def ShowCharacterButtons(self, clear = False):
         if clear:
             self.hGH.ClearCharacterListFrame()
@@ -84,15 +111,17 @@ class CharacterList:
         #Maybe change the delete by an icon
         #self.hGH.CharacterListFrame.deleteIcon = ImageTk.PhotoImage(file='Icons\\delete-folder.png')
         
-        i = 0
+        i = 1
         for character in self.characters:
-            i += 1
             color = 'white'
             if hasattr(self, 'currentCharacter') and character == self.currentCharacter:
                 color = 'green'
 
             Button(self.hGH.CharacterListFrame, bg=color, text=character.GetName(), width=30,  command= lambda c=character: self._SelectCharacter(c)).grid(row=i, column=0)
             Button(self.hGH.CharacterListFrame, text='Delete', width=5, command= lambda c=character: self._DeleteCharacter(c)).grid(row=i, column=1)
+            i += 1
+
+        Button(self.hGH.CharacterListFrame, text='Unselect Character', width=30,  command= lambda: self._UnselectCharacter()).grid(row=i, column=0)
     
     def __init__(self, hGH, root, itemList):
         self.root = root
