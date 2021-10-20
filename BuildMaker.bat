@@ -1,1 +1,1 @@
-pyinstaller.exe --onefile --paths="H:\Projects\D2 Holy Grail\.venv\Lib\site-packages"  main.py
+pyinstaller.exe --onefile --paths=".\.venv\Lib\site-packages"  main.py
