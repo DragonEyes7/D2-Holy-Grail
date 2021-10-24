@@ -29,7 +29,7 @@ class CharacterList:
             Label(win, text='No Character found with this item').grid()
 
     def _ShowItem(self, character, itemName):
-        itemView = ItemViewClass.ItemView()
+        itemView = ItemViewClass.ItemView(self.hGH)
         item = character.GetInventory().GetItemFromName(itemName)
         if item:
             itemView.ShowItemWindow(item)
@@ -76,7 +76,7 @@ class CharacterList:
         #warning Character Inventory is not empty are you sure you want to delete?
         if len(character.GetInventory().GetList()) > 0:
             #open a warning popup
-            Label(self.root, text="Character Inventory is not empty are you sure you want to delete?").pack(side=TOP)
+            Label(self.root, text="Character Inventory is not empty are you sure you want to delete?").grid()
         else:
             if os.path.isdir(character.GetPath()):
                 os.rmdir(character.GetPath())
@@ -89,7 +89,7 @@ class CharacterList:
             self.hGH.MainFrame = Frame(self.root)
 
             Button(self.hGH.MainFrame, text='(A)dd Item', width=30,  command=lambda: self.hGH.ScreenCapture.AreaSelect()).pack()
-            self.hGH.MainFrame.bind('a', lambda e: self.hGH.ScreenCapture.AreaSelect())
+            self.root.bind('a', lambda e: self.hGH.ScreenCapture.AreaSelect())
 
             self.hGH.MainFrame.grid()
 

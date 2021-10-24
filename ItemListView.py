@@ -1,3 +1,4 @@
+from numpy import character
 import ItemView as ItemViewClass
 
 from tkinter import *
@@ -66,8 +67,9 @@ class ItemListView:
         self.hGH.CharacterList.ShowCharacterWindowWithCurrentItem(itemName)
 
     def OnItemSelectedFromInventory(self, event):
-        itemView = ItemViewClass.ItemView()
-        itemView.ShowItemWindow(event[0])
+        itemView = ItemViewClass.ItemView(self.hGH)
+        if len(event) > 0:
+            itemView.ShowItemWindow(event[0])
 
     def __init__(self, hgh):
         self.hGH = hgh

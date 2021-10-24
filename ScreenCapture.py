@@ -76,7 +76,7 @@ class ScreenCapture:
 
     def SaveImage(self, win, rgbImg, item):
         fileName = item.GetName() + ".jpg"
-        rgbImg.save(os.path.join(self.HGH.characterList.currentCharacter.GetPath(), fileName), "JPEG")
+        rgbImg.save(os.path.join(self.HGH.CharacterList.GetCurrentCharacter().GetPath(), fileName), "JPEG")
         rgbImg.close()
 
         win.destroy()
