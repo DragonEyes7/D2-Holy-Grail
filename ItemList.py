@@ -3,10 +3,6 @@ import DataFeeder as DataFeederClass
 from difflib import SequenceMatcher
 
 class ItemList:
-    def CurrentItemInView(self):
-        #print(self.UniqueList)
-        pass
-
     def FindBestMatch(self, list, itemName, itemType, bestMatchItem, bestMatchRatio):
         for item in list:
             currentRatio = SequenceMatcher(None, itemName.lower(), item.GetName().lower()).ratio()
