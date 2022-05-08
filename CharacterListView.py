@@ -1,17 +1,17 @@
 import os
+
 import Character as CharacterClass
 import Inventory as InventoryClass
-import Item as ItemClass
 import ItemView as ItemViewClass
 
 from tkinter import *
-from os import walk
+from ButtonBar import ButtonBar
 
 import GlobalWindowSettings as GlobalWindowSettingsClass
 
 class CharacterListView:
     def GetCurrentCharacter(self):
-        return self.currentCharacter
+        return self.currentCharacter if hasattr(self, 'currentCharacter') else None
 
     def ShowCharacterWindowWithCurrentItem(self, itemName):
         win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
@@ -28,11 +28,8 @@ class CharacterListView:
         if not found:
             Label(win, text='No Character found with this item').grid()
 
-    def _ShowItem(self, character, itemName):
-        itemView = ItemViewClass.ItemView(self.hGH)
-        item = character.GetInventory().GetItemFromName(itemName)
-        if item:
-            itemView.ShowItemWindow(item)
+    def UpdateBarSelect(self, pickname):
+        pass
 
     def CreateCharacterWindow(self):
         win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
@@ -45,99 +42,114 @@ class CharacterListView:
         characterNameInput = Entry(win, textvariable=sv)
         characterNameInput.grid(row=0, column=1)
 
+        bar = ButtonBar(self, win, ['Online', 'Offline', 'Ladder'])
+        bar.grid(row=1)
+        bar.config(relief=GROOVE, bd=2)
+
+        boolvar = BooleanVar()
+        Checkbutton(win, text="Hardcore", width=30, variable=boolvar).grid(row=1, column=1)
+
         ErrorLabel = Label(win, text='')
         ErrorLabel.grid(row=2)
 
-        Button(win, text='Create', width=30,  command= lambda: self._CreateCharacterFolder(win, characterNameInput.get(), ErrorLabel)).grid(row=3, column=0, sticky=W, pady=4)
-        win.bind('<Return>', lambda e: self._CreateCharacterFolder(win, characterNameInput.get(), ErrorLabel))
+        Button(win, text='Create', width=30,  command= lambda: self._CreateCharacterFolder(characterNameInput.get(), ErrorLabel,  bar.GetSelected(), boolvar.get())).grid(row=3, column=0, sticky=W, pady=4)
+        win.bind('<Return>', lambda e: self._CreateCharacterFolder(characterNameInput.get(), ErrorLabel))
 
-        Button(win, text='Cancel', width=30,  command= lambda: win.destroy()).grid(row=3, column=1, sticky=W, pady=4)
+        Button(win, text='Close', width=30,  command= lambda: win.destroy()).grid(row=3, column=1, sticky=W, pady=4)
+
+    def ClearList(self):
+        if hasattr(self, 'Label'):
+            self.Label.destroy()
         
-    def _CharacterNameEntryChanged(self, ErrorLabel, sv):
-        ErrorLabel['text'] = ''
+        if hasattr(self, '_Unselected'):
+            self._Unselected.destroy()
+            self._Unselected = None
 
-    def _CreateCharacter(self, dirName):
-        characterInv = InventoryClass.Inventory()
-        character = CharacterClass.Character(dirName, characterInv) 
-        return character
+        for button in self.CharacterButtons:
+            button[0].destroy()
+            button[1].destroy()
 
-    def _CreateCharacterFolder(self, win, characterName, ErrorLabel):
-        if not os.path.isdir("Characters\\" + characterName):
-            os.mkdir("Characters\\" + characterName)
-            win.destroy()
-            character = self._CreateCharacter(characterName)
-            self.characters.append(character)
-            self.characters.sort(key=lambda char: char.GetName().lower())
-            self.ShowCharacterButtons(True)
-        else:
-            ErrorLabel['text'] = "Character already Exist" 
-
-    def _DeleteCharacter(self, character):
-        #warning Character Inventory is not empty are you sure you want to delete?
-        if len(character.GetInventory().GetList()) > 0:
-            #open a warning popup
-            Label(self.root, text="Character Inventory is not empty are you sure you want to delete?").grid()
-        else:
-            if os.path.isdir(character.GetPath()):
-                os.rmdir(character.GetPath())
-                self.characters.remove(character)
-
-        self.ShowCharacterButtons(True)
-
-    def _SelectCharacter(self, character):
-        if not hasattr(self, 'currentCharacter'):
-            self.hGH.MainFrame = Frame(self.root)
-
-            Button(self.hGH.MainFrame, text='(A)dd Item', width=30,  command=lambda: self.hGH.ScreenCapture.AreaSelect()).pack()
-            self.root.bind('a', lambda e: self.hGH.ScreenCapture.AreaSelect())
-
-            self.hGH.MainFrame.grid()
-
-        self.currentCharacter = character
-        self.hGH.ItemListView.ShowItemListFromInventory(self.currentCharacter.GetInventory().GetList())
-        self.ShowCharacterButtons(True)
-
-    def _UnselectCharacter(self):
-        self.currentCharacter = None
-        self.ShowCharacterButtons(True)
-        self.hGH.ItemListView.ShowAllItemList()
-
-    def ShowCharacterButtons(self, clear = False):
+    def ShowCharacterButtons(self, characterList, clear = False):
         if clear:
-            self.hGH.ClearCharacterListFrame()
+            self.ClearList()
+        else:
+            Label(self.TKContainer, text='Character List:').grid(row=0)
+            Button(self.TKContainer, text='Create Character', width=30,  command=self.main.CharacterListView.CreateCharacterWindow).grid(row=1)
+            self.CharacterButtons = []
 
-        Label(self.hGH.CharacterListFrame, text='Character List:').grid(row=0)
-        
         #Maybe change the delete by an icon
         #self.hGH.CharacterListFrame.deleteIcon = ImageTk.PhotoImage(file='Icons\\delete-folder.png')
         
-        i = 1
-        for character in self.characters:
+        i = 2
+        for character in characterList:
             color = 'white'
             if hasattr(self, 'currentCharacter') and character == self.currentCharacter:
                 color = 'green'
 
-            Button(self.hGH.CharacterListFrame, bg=color, text=character.GetName(), width=30,  command= lambda c=character: self._SelectCharacter(c)).grid(row=i, column=0)
-            Button(self.hGH.CharacterListFrame, text='Delete', width=5, command= lambda c=character: self._DeleteCharacter(c)).grid(row=i, column=1)
+            btn = Button(self.TKContainer, bg=color, text=character.GetName(), width=30,  command= lambda c=character: self._SelectCharacter(c))
+            btn.grid(row=i, column=0);
+            btn2 = Button(self.TKContainer, text='Delete', width=5, command= lambda c=character: self._DeleteCharacter(c))
+            btn2.grid(row=i, column=1)
+            self.CharacterButtons.append((btn, btn2))
             i += 1
 
-        Button(self.hGH.CharacterListFrame, text='Unselect Character', width=30,  command= lambda: self._UnselectCharacter()).grid(row=i, column=0)
-    
-    def __init__(self, hGH, root, itemList):
-        self.root = root
-        self.hGH = hGH
+        if not hasattr(self, '_Unselected') or self._Unselected == None:
+           self._Unselected = Button(self.TKContainer, text='Unselect Character', width=30,  command= lambda: self._UnselectCharacter())
+           self._Unselected.grid(row=i, column=0)
         
-        self.characters = []
-        
-        path = 'Characters\\' + self.hGH.GameType + '\\' + ('Hardcore' if self.hGH.IsHardcore.get() == 1 else 'Softcore')
+        if len(characterList) <= 0:
+            self.Label = Label(self.TKContainer, text='No Character')
+            self.Label.grid(row=1)
 
-        for (dirpath, dirnames, filenames) in walk(path):
-            for dirname in dirnames:
-                character = self._CreateCharacter(dirname)
-                self.characters.append(character)
-                for (dirpath, dirnames, filenames) in walk(path + '\\' + dirname):
-                    for file in filenames:
-                        #find item Data and fill it
-                        itemData = itemList.GetItemFromName(file.split('.')[0], None)
-                        item = ItemClass.Item(file, dirpath, itemData)
-                        character.GetInventory().AddItemToInventory(item)
+    def _ShowItem(self, character, itemName):
+        itemView = ItemViewClass.ItemView(self.hGH)
+        item = character.GetInventory().GetItemFromName(itemName)
+        if item:
+            itemView.ShowItemWindow(item)
+        
+    def _CharacterNameEntryChanged(self, ErrorLabel, sv):
+        ErrorLabel['text'] = ''
+
+    def _CreateCharacterFolder(self, characterName, ErrorLabel, gameType, isHardcore):
+        result = self.main.CharacterListData.CreateCharacter(characterName, gameType, isHardcore)
+        ErrorLabel['text'] = result[1]
+
+        if result[0] != None:
+            self.ShowCharacterButtons(result[0],True)
+
+    def _DeleteCharacter(self, character):
+        result = self.main.CharacterListData.DeleteCharacter(character)
+        Label(self.root, text=result[0]).pack()
+        self.ShowCharacterButtons(result[1], True)
+
+    def _SelectCharacter(self, character):
+        if not hasattr(self, 'currentCharacter'):
+            #self.main.MainFrame = Frame(self.root)
+
+            #Button(self.main.MainFrame, text='(A)dd Item', width=30,  command=lambda: self.main.ScreenCapture.AreaSelect()).pack()
+            #self.root.bind('a', lambda e: self.main.ScreenCapture.AreaSelect())
+
+            #self.main.MainFrame.pack()
+            pass
+
+        self.currentCharacter = character
+        self.main.ItemListView.ShowItemListFromInventory(self.currentCharacter.GetInventory().GetList())
+        self._UpdateSelectedCharacter()
+
+    def _UnselectCharacter(self):
+        self.currentCharacter = None
+        self._UpdateSelectedCharacter()
+        self.main.ItemListView.ShowAllItemList()
+    
+    def _UpdateSelectedCharacter(self):
+        for btn in self.CharacterButtons:
+            if self.currentCharacter is not None and btn[0]['text'] == self.currentCharacter.GetName():
+                print(btn[0]['text'])
+                btn[0].configure(bg='green')
+            else:
+                btn[0].configure(bg='white')
+    
+    def __init__(self, main, root, tkContainer):
+        self.root = root
+        self.main = main
+        self.TKContainer = tkContainer

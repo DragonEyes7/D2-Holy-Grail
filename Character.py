@@ -1,4 +1,7 @@
 class Character:
+    def GetGameType(self):
+        return 'Ladder' if self.IsLadder else 'Online' if self.IsOnline else 'Offline'
+
     def GetIsLadder(self):
         return self.IsLadder
 
@@ -20,18 +23,11 @@ class Character:
     def __init__(self, path, characterName, inventory):
         self.path = path
 
-        self.IsHardcore = False
-        if 'Hardcore' in path:
-            self.IsHardcore = True
+        self.IsHardcore = 'Hardcore' in path
 
-        self.Online = False
-        if 'Online' in path:
-            self.Online = True
+        self.IsOnline = 'Online' in path
 
-        self.Ladder = False
-        if 'Ladder' in path:
-            self.Ladder = True
+        self.IsLadder = 'Ladder' in path
 
-        print("Character " + characterName + " Path: " + path)
         self.name = characterName
         self.inventory = inventory

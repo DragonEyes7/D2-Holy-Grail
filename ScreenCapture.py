@@ -11,6 +11,10 @@ from PIL import ImageEnhance, ImageGrab, ImageTk
 import GlobalWindowSettings as GlobalWindowSettingsClass
 
 class ScreenCapture:
+    def __init__(self, hgh, root):
+        self.HGH = hgh
+        self.root = root
+
     def ShowImage(self, image):
         win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
 
@@ -26,8 +30,8 @@ class ScreenCapture:
         imgpil = ImageTk.getimage(win.image)
         rgbImg = imgpil.convert('RGB')
 
-        Button(win, text='(U)pdage', width=30,  command=lambda: {self.AreaSelect(), win.destroy()}).pack(in_=bottom, side=LEFT)
-        win.bind('u', lambda e: {self.AreaSelect(), win.destroy()})
+        Button(win, text='(R)etake', width=30,  command=lambda: {self.AreaSelect(), win.destroy()}).pack(in_=bottom, side=LEFT)
+        win.bind('r', lambda e: {self.AreaSelect(), win.destroy()})
         
         stringImage = self.ReadImageToString(rgbImg)
 
@@ -75,11 +79,14 @@ class ScreenCapture:
         return pytesseract.image_to_string(cv2.cvtColor(nm.array(image), cv2.COLOR_BGR2GRAY), lang ='eng')
 
     def SaveImage(self, win, rgbImg, item):
-        fileName = item.GetName() + ".jpg"
-        rgbImg.save(os.path.join(self.HGH.CharacterList.GetCurrentCharacter().GetPath(), fileName), "JPEG")
-        rgbImg.close()
+        if self.HGH.CharacterListView.GetCurrentCharacter() != None:
+            fileName = item.GetName() + ".jpg"
+            rgbImg.save(os.path.join(self.HGH.CharacterListView.GetCurrentCharacter().GetPath(), fileName), "JPEG")
+            rgbImg.close()
 
-        win.destroy()
+            win.destroy()
+        else:
+            print("Please select a character")
         
     def AreaSelect(self):
             x1 = y1 = x2 = y2 = 0
@@ -126,7 +133,3 @@ class ScreenCapture:
             # show the capture image
             if roi_image:
                 self.ShowImage(roi_image)
-
-    def __init__(self, root, hgh):
-        self.root = root
-        self.HGH = hgh

@@ -7,6 +7,7 @@ class ItemListView:
     def SearchBar(self):
         self.SearchValue = StringVar()
         self.SearchValue.trace_variable("w", lambda var, index, mode, sv=self.SearchValue: self.Search(self.hGH.ItemList.UniqueList, sv.get()))
+
         Label(self.ItemListOptions, text='Search:').grid(row=0, column=0)
         Entry(self.ItemListOptions, textvariable=self.SearchValue).grid(row=0, column=1)
 
@@ -19,6 +20,7 @@ class ItemListView:
         if self.SearchValue:
             sv = self.SearchValue
 
+        #Change that for ButtonBar!
         Button(self.ItemListOptions, text='All', width=10,  command= lambda: self.ShowAllItemList(sv.get())).grid(row=1, column=0)
         Button(self.ItemListOptions, text='Uniques', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=1)
         Button(self.ItemListOptions, text='Sets', width=10,  command= lambda: self.Search(self.hGH.ItemList.SetList, sv.get())).grid(row=1, column=2)
@@ -42,11 +44,9 @@ class ItemListView:
     def ShowAllItemList(self, var=''):
         self.ClearItemList()
 
-        fullList = self.hGH.ItemList.UniqueList + self.hGH.ItemList.SetList + self.hGH.ItemList.RuneList
+        self.fullList.sort(key=lambda i: i.GetName())
 
-        fullList.sort(key=lambda i: i.GetName())
-
-        self.ShowItemList(fullList, var)
+        self.ShowItemList(self.fullList, var)
 
     def ShowItemList(self, list, filter=''):
         self.ClearItemList()
@@ -64,14 +64,16 @@ class ItemListView:
 
     def OnItemSelected(self, event):
         itemName = self.listBox.get(ANCHOR)
-        self.hGH.CharacterList.ShowCharacterWindowWithCurrentItem(itemName)
+        self.hGH.CharacterListView.ShowCharacterWindowWithCurrentItem(itemName)
 
     def OnItemSelectedFromInventory(self, event):
         itemView = ItemViewClass.ItemView(self.hGH)
         if len(event) > 0:
             itemView.ShowItemWindow(event[0])
 
-    def __init__(self, hgh):
+    def __init__(self, hgh, itemList):
+        self.fullList = itemList.UniqueList + itemList.SetList + itemList.RuneList
+
         self.hGH = hgh
         self.ItemListOptions = Frame(self.hGH.CurrentViewFrame)
         self.ItemListFrame = Frame(self.hGH.CurrentViewFrame)
@@ -79,7 +81,11 @@ class ItemListView:
         self.SearchBar()
         self.FilterBar()
         self.ItemListOptions.pack(side=TOP)
-        Label(self.ItemListOptions, text='Item List:').grid(row=2, column=0)
+
+        Button(self.ItemListOptions, text='(A)dd Item', width=30,  command=lambda: self.hGH.ScreenCapture.AreaSelect()).grid(row=2)
+        self.ItemListOptions.bind('a', lambda e: self.main.ScreenCapture.AreaSelect())
+
+        Label(self.ItemListOptions, text='Item List:').grid(row=3, column=0)
 
         self.ItemListFrame.pack(side=BOTTOM, fill=BOTH, expand=True)
 

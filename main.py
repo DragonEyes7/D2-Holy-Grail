@@ -2,15 +2,36 @@ from tkinter import *
 from ButtonBar import ButtonBar
 
 import Settings as SettingsClass
+
 import CharacterList as CharacterListClass
-import ItemList as ItemListClass
+import CharacterListView as CharacterListViewClass
+
 import ScreenCapture as ScreenCaptureClass
+
+import ItemList as ItemListClass
 import ItemListView as ItemListViewClass
 
 class HolyGrailHelper:
+    def UpdateBarSelect(self, pickName):
+        self.Settings.GameType = pickName
+        
+        self.CharacterListView.ShowCharacterButtons(self.CharacterListData.GetCharacterList(self.Settings), True)
+
+    def UpdateBarSelectHarcore(self, boolvar):
+        self.Settings.IsHardcore = boolvar.get()
+
+        self.CharacterListView.ShowCharacterButtons(self.CharacterListData.GetCharacterList(self.Settings), True)
+        
+    def __init__(self):
+        self._InitData()
+        self._InitVisual(Tk())
+        self._InitFrames()
+        self._InitModules()
+
     def _InitData(self):
         self.ItemList = ItemListClass.ItemList()
         self.Settings = SettingsClass.Settings('Online', False)
+        self.CharacterListData = CharacterListClass.CharacterList(self.Settings, self.ItemList)
 
     def _InitVisual(self, root):
         self.root = root
@@ -28,61 +49,52 @@ class HolyGrailHelper:
 
         self.MainFrame = Frame(self.root)
         self.TopFrame = Frame(self.root)
-
-    def _InitModules(self):
-        self.ScreenCapture = ScreenCaptureClass.ScreenCapture(self.root, self)
-        self.ItemListView = ItemListViewClass.ItemListView(self)
+        self.BottomFrame = Frame(self.root)
 
     def _InitFrames(self):
-        self.CharacterListFrame = Frame(self.root)
-        self.CurrentViewFrame = Frame(self.root)
+        self.CharacterListFrame = Frame(self.MainFrame)
+        self.CurrentViewFrame = Frame(self.MainFrame)
 
-    def ClearCharacterListFrame(self):
-        self.CharacterListFrame.destroy()
-        self.CharacterListFrame = Frame(self.root)
-        self.CharacterListFrame.grid(row=0, column=0)
+    def _InitModules(self):
+        self.ScreenCapture = ScreenCaptureClass.ScreenCapture(self, self.root)
+        self.ItemListView = ItemListViewClass.ItemListView(self, self.ItemList)
+        self.CharacterListView = CharacterListViewClass.CharacterListView(self, self.MainFrame, self.CharacterListFrame)
 
-    def MainMenu(self):
+    def _TopMenu(self):
         bar = ButtonBar(self, self.TopFrame, ['Online', 'Offline', 'Ladder'])
         bar.pack(side=LEFT)
         bar.config(relief=GROOVE, bd=2)
 
         boolvar = BooleanVar()
-        Checkbutton(self.TopFrame, text="Hardcore", width=30, variable=boolvar).pack(side=LEFT)
-        self.Settings.IsHardcore = boolvar.get()
+        Checkbutton(self.TopFrame, text="Hardcore", width=10, variable=boolvar, command=lambda b=boolvar: self.UpdateBarSelectHarcore(b)).pack(side=LEFT)
 
-        Button(self.TopFrame, text='(Q)uit', width=30, command=lambda: self.root.destroy()).pack(side=RIGHT)
+        Button(self.TopFrame, text='(Q)uit', width=10, command=lambda: self.root.destroy()).pack(side=RIGHT)
         self.TopFrame.bind('q', lambda e: self.root.destroy())
-        
-    def LoadCharacters(self, type):
-        self.Settings.GameType = type
-        self.Character()
 
-    def Character(self):
-        self.CharacterList = CharacterListClass.CharacterList(self.Settings, self.ItemList)
-
-        self.CharacterListFrame.grid(row=1, column=0)
-        self.CurrentViewFrame.grid(row=1, column=1)
+    def _MainMenu(self):
+        self._LoadCharacters()
+        self._LoadItems()
         
-        self.CharacterList.ShowCharacterButtons()
+    def _LoadCharacters(self):
+        self.CharacterListView.ShowCharacterButtons(self.CharacterListData.GetCharacterList(self.Settings))
+
+        self.CharacterListFrame.pack(side=LEFT, fill='y')
+
+
+    def _LoadItems(self):
+        #Button(self.MainFrame, text='(A)dd Item', width=30,  command=lambda: self.ScreenCapture.AreaSelect()).pack()
+        self.CurrentViewFrame.pack(side=RIGHT, fill='y') #grid(row=1, column=1)
+        
         self.ItemListView.ShowAllItemList()
-        
-        if not hasattr(self, '_createButton'):
-            self._createButton = Button(self.MainFrame, text='Create Character', width=30,  command=self.CharacterList.CreateCharacterWindow).pack()
 
     def Main(self):
-        self.MainMenu()
+        self._TopMenu()
+        self._MainMenu()
 
-        self.TopFrame.grid(row=0, column=0, columnspan=2)
-        self.MainFrame.grid(row=2, columnspan=2)
+        self.TopFrame.pack(side=TOP, fill='x') #.grid(row=0, column=0, columnspan=2, sticky=N)
+        self.MainFrame.pack(fill='both') #grid(row=2, columnspan=2)
 
         self.root.mainloop()
-
-    def __init__(self):
-        self._InitData()
-        self._InitVisual(Tk())
-        self._InitFrames()
-        self._InitModules()
 
 holyGrailHelper = HolyGrailHelper()
 
