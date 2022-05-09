@@ -21,6 +21,18 @@ class HolyGrailHelper:
         self.Settings.IsHardcore = boolvar.get()
 
         self.CharacterListView.ShowCharacterButtons(self.CharacterListData.GetCharacterList(self.Settings), True)
+
+    def ErrorMessage(self, errorMessage):
+        print(errorMessage)
+
+    def Main(self):
+        self._TopMenu()
+        self._MainMenu()
+
+        self.TopFrame.pack(side=TOP, fill='x') #.grid(row=0, column=0, columnspan=2, sticky=N)
+        self.MainFrame.pack(fill='both') #grid(row=2, columnspan=2)
+
+        self.root.mainloop()
         
     def __init__(self):
         self._InitData()
@@ -82,19 +94,9 @@ class HolyGrailHelper:
 
 
     def _LoadItems(self):
-        #Button(self.MainFrame, text='(A)dd Item', width=30,  command=lambda: self.ScreenCapture.AreaSelect()).pack()
-        self.CurrentViewFrame.pack(side=RIGHT, fill='y') #grid(row=1, column=1)
+        self.CurrentViewFrame.pack(side=RIGHT, fill='y')
         
         self.ItemListView.ShowAllItemList()
-
-    def Main(self):
-        self._TopMenu()
-        self._MainMenu()
-
-        self.TopFrame.pack(side=TOP, fill='x') #.grid(row=0, column=0, columnspan=2, sticky=N)
-        self.MainFrame.pack(fill='both') #grid(row=2, columnspan=2)
-
-        self.root.mainloop()
 
 holyGrailHelper = HolyGrailHelper()
 

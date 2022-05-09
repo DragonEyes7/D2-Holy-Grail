@@ -31,7 +31,8 @@ class ScreenCapture:
         rgbImg = imgpil.convert('RGB')
 
         Button(win, text='(R)etake', width=30,  command=lambda: {self.AreaSelect(), win.destroy()}).pack(in_=bottom, side=LEFT)
-        win.bind('r', lambda e: {self.AreaSelect(), win.destroy()})
+        #Don't Retake when typing in the entry
+        #win.bind('r', lambda e: {self.AreaSelect(), win.destroy()})
         
         stringImage = self.ReadImageToString(rgbImg)
 
@@ -41,11 +42,11 @@ class ScreenCapture:
             itemName = stringImage.splitlines()[0]
             typeName = stringImage.splitlines()[1]
 
-            item = self.HGH.ItemList.GetItemFromName(itemName, typeName)
+            itemData = self.HGH.ItemList.GetItemFromName(itemName, typeName)
 
             if item:
-                itemName = item.GetName()
-                typeName = item.GetType()
+                itemName = itemData.GetName()
+                typeName = itemData.GetType()
             
             itemNameInputValue = StringVar(win, value=itemName)
             itemTypeInputValue = StringVar(win, value=typeName)
@@ -62,7 +63,7 @@ class ScreenCapture:
 
             nameFrame.pack()
         
-            Button(win, text='(S)ave', width=30, command=lambda: self.SaveImage(win, rgbImg, item)).pack(in_=bottom, side=LEFT)
+            Button(win, text='(S)ave', width=30, command=lambda: self.SaveImage(win, rgbImg, itemData)).pack(in_=bottom, side=LEFT)
             #Don't save when typing in the entry
             #win.bind('s', lambda e: self.SaveImage(win, rgbImg, itemNameInput.get()))
 
@@ -78,17 +79,23 @@ class ScreenCapture:
 
         return pytesseract.image_to_string(cv2.cvtColor(nm.array(image), cv2.COLOR_BGR2GRAY), lang ='eng')
 
-    def SaveImage(self, win, rgbImg, item):
-        if self.HGH.CharacterListView.GetCurrentCharacter() != None:
-            fileName = item.GetName() + ".jpg"
-            rgbImg.save(os.path.join(self.HGH.CharacterListView.GetCurrentCharacter().GetPath(), fileName), "JPEG")
-            rgbImg.close()
+    def SaveImage(self, win, rgbImg, itemData):
+        fileName = itemData.GetName() + ".jpg"
+        itemPath = os.path.join(self.HGH.CharacterListView.GetCurrentCharacter().GetFullPath(), fileName)
+        rgbImg.save(itemPath, "JPEG")
+        rgbImg.close()
 
-            win.destroy()
-        else:
-            print("Please select a character")
+        item = ItemClass.Item(fileName, itemPath, itemData)
+        self.HGH.CharacterListView.currentCharacter.GetInventory().AddItemToInventory(item)
+        self.HGH.ItemListView.ShowItemListFromInventory(self.HGH.CharacterListView.currentCharacter.GetInventory().GetList())
+
+        win.destroy()
         
     def AreaSelect(self):
+            if self.HGH.CharacterListView.GetCurrentCharacter() == None:
+                self.HGH.ErrorMessage("Please Select a Character before adding an Item")
+                return
+
             x1 = y1 = x2 = y2 = 0
             roi_image = None
 

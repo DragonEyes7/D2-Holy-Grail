@@ -2,7 +2,7 @@ import os
 
 import Character as CharacterClass
 import Inventory as InventoryClass
-import ItemView as ItemViewClass
+import ItemViewer as ItemViewerClass
 
 from tkinter import *
 from ButtonBar import ButtonBar
@@ -17,7 +17,7 @@ class CharacterListView:
         win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
         found = False
         i = 0
-        for character in self.characters:
+        for character in self.main.CharacterListData.GetCharacterList(self.main.Settings):
             i += 1
             for item in character.GetInventory().GetList():
                 if itemName == item.GetData().GetName():
@@ -102,7 +102,7 @@ class CharacterListView:
             self.Label.grid(row=1)
 
     def _ShowItem(self, character, itemName):
-        itemView = ItemViewClass.ItemView(self.hGH)
+        itemView = ItemViewerClass.ItemViewer(self.main)
         item = character.GetInventory().GetItemFromName(itemName)
         if item:
             itemView.ShowItemWindow(item)

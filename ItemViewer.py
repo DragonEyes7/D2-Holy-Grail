@@ -6,7 +6,7 @@ from PIL import ImageTk
 
 import GlobalWindowSettings as GlobalWindowSettingsClass
 
-class ItemView:
+class ItemViewer:
     def _MoveToOtherCharacter(self, item):
         win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
 
@@ -17,26 +17,27 @@ class ItemView:
                 Button(win, text=character.GetName(), width=30,  command= lambda win=win, c=character, i=item: self._SelectCharacter(win, c, i)).grid(row=i, column=0)
 
     def _UpdateImage(self):
+        #take an other screenshot to update te picture
         pass
 
     def _SelectCharacter(self, win, character, item):
         name = item.GetData().GetName()
 
-        if os.path.isfile(os.path.join('.\\Characters\\' + character.GetName(), name + ".jpg")):
+        if os.path.isfile(os.path.join(character.GetFullPath(), name + ".jpg")):
             i = 0
             while True:
                 i = i + 1
-                if not os.path.isfile(os.path.join('.\\Characters\\' + character.GetName(), (name + '_' + str(i) + ".jpg"))):
+                if not os.path.isfile(os.path.join(character.GetFullPath(), (name + '_' + str(i) + ".jpg"))):
                     name = name + '_' + str(i)
                     break
 
-        shutil.move('.\\' + item.GetFullPath(), os.path.join('.\\Characters\\' + character.GetName(), name + ".jpg"))
+        shutil.move('.\\' + item.GetFullPath(), os.path.join(character.GetFullPath(), name + ".jpg"))
         win.destroy()
     
     def _DeleteItem(self, item, win=None):
-        self.hGH.CharacterList.GetCurrentCharacter().GetInventory().RemoveItemFromInventory(item)
+        self.hGH.CharacterListView.GetCurrentCharacter().GetInventory().RemoveItemFromInventory(item)
         item.Delete()
-        self.hGH.ItemListView.ShowItemList(self.hGH.CharacterList.GetCurrentCharacter().GetInventory().GetList())
+        self.hGH.ItemListView.ShowItemList(self.hGH.CharacterListView.GetCurrentCharacter().GetInventory().GetList())
         if win:
             win.destroy()
 

@@ -79,7 +79,7 @@ class CharacterList:
                                 for itemFile in Items:
                                     #find item Data and fill it
                                     itemData = itemList.GetItemFromName(itemFile.name.split('.')[0], None)
-                                    item = ItemClass.Item(itemFile, itemPath, itemData)
+                                    item = ItemClass.Item(itemFile.name, itemPath, itemData)
                                     character.GetInventory().AddItemToInventory(item)
 
     def _CreateCharacter(self, dirpath, dirName):

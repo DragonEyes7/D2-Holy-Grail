@@ -1,3 +1,5 @@
+import os
+
 class Character:
     def GetGameType(self):
         return 'Ladder' if self.IsLadder else 'Online' if self.IsOnline else 'Offline'
@@ -13,6 +15,9 @@ class Character:
 
     def GetPath(self):
         return self.path
+
+    def GetFullPath(self):
+        return os.path.join(self.path, self.name)
 
     def GetName(self):
         return self.name

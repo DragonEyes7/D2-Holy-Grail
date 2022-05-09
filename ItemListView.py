@@ -1,5 +1,6 @@
 from numpy import character
-import ItemView as ItemViewClass
+import ItemViewer as ItemViewerClass
+from ButtonBar import ButtonBar
 
 from tkinter import *
 
@@ -14,22 +15,32 @@ class ItemListView:
     def Search(self, list, var):
         self.ShowItemList(list, var)
 
-    def FilterBar(self):
+    def UpdateBarSelect(self, pickName):
         sv = StringVar()
 
         if self.SearchValue:
             sv = self.SearchValue
 
-        #Change that for ButtonBar!
-        Button(self.ItemListOptions, text='All', width=10,  command= lambda: self.ShowAllItemList(sv.get())).grid(row=1, column=0)
-        Button(self.ItemListOptions, text='Uniques', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=1)
-        Button(self.ItemListOptions, text='Sets', width=10,  command= lambda: self.Search(self.hGH.ItemList.SetList, sv.get())).grid(row=1, column=2)
-        Button(self.ItemListOptions, text='Runes', width=10,  command= lambda: self.Search(self.hGH.ItemList.RuneList, sv.get())).grid(row=1, column=3)
-        #Button(self.ItemListOptions, text='Runewords', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=4)
-        #Look on Characters and find the rares to fill a list
-        Button(self.ItemListOptions, text='Rares', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=5)
-        #Look on Characters and find the crafted to fill a list
-        Button(self.ItemListOptions, text='Crafted', width=10,  command= lambda: self.Search(self.hGH.ItemList.UniqueList, sv.get())).grid(row=1, column=6)
+        iList = []
+        if pickName == 'Unique':
+            iList = self.hGH.ItemList.UniqueList
+        elif pickName == 'Sets':
+            iList = self.hGH.ItemList.SetList
+        elif pickName == 'Runes':
+            iList = self.hGH.ItemList.RuneList
+        elif pickName == 'Rares':
+            iList = []
+        elif pickName == 'Crafted':
+            iList = []
+        else:
+            self.ShowAllItemList(sv.get())
+            return
+        
+        self.Search(iList, sv.get())
+
+    def FilterBar(self):
+        bar = ButtonBar(self, self.ItemListOptions, ['All', 'Uniques', 'Sets', 'Runes', 'Rares', 'Crafted'])
+        bar.grid(row=1, columnspan=6)
 
     def ShowItemListFromInventory(self, list):
         self.ClearItemList()
@@ -67,7 +78,7 @@ class ItemListView:
         self.hGH.CharacterListView.ShowCharacterWindowWithCurrentItem(itemName)
 
     def OnItemSelectedFromInventory(self, event):
-        itemView = ItemViewClass.ItemView(self.hGH)
+        itemView = ItemViewerClass.ItemViewer(self.hGH)
         if len(event) > 0:
             itemView.ShowItemWindow(event[0])
 
@@ -82,10 +93,10 @@ class ItemListView:
         self.FilterBar()
         self.ItemListOptions.pack(side=TOP)
 
-        Button(self.ItemListOptions, text='(A)dd Item', width=30,  command=lambda: self.hGH.ScreenCapture.AreaSelect()).grid(row=2)
+        Button(self.ItemListOptions, text='(A)dd Item', width=30, command=lambda: self.hGH.ScreenCapture.AreaSelect()).grid(row=2, columnspan=6)
         self.ItemListOptions.bind('a', lambda e: self.main.ScreenCapture.AreaSelect())
 
-        Label(self.ItemListOptions, text='Item List:').grid(row=3, column=0)
+        Label(self.ItemListOptions, text='Item List:').grid(row=3, column=0, columnspan=6)
 
         self.ItemListFrame.pack(side=BOTTOM, fill=BOTH, expand=True)
 
