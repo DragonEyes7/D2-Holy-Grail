@@ -28,11 +28,11 @@ class HolyGrailHelper:
     def Main(self):
         self._TopMenu()
         self._MainMenu()
-        #Bottom menu is the credit: Made by Frédéric Carrier
-        #self._BottomMenu()
+        self._BottomMenu()
 
-        self.TopFrame.pack(side=TOP, fill='x') #.grid(row=0, column=0, columnspan=2, sticky=N)
-        self.MainFrame.pack(fill='both') #grid(row=2, columnspan=2)
+        self.TopFrame.pack(side=TOP, fill=X) #.grid(row=0, column=0, columnspan=2, sticky=N)
+        self.MainFrame.pack(fill=BOTH) #grid(row=2, columnspan=2)
+        self.BottomFrame.pack(side=BOTTOM, fill=X)
 
         self.root.mainloop()
         
@@ -88,6 +88,9 @@ class HolyGrailHelper:
     def _MainMenu(self):
         self._LoadCharacters()
         self._LoadItems()
+
+    def _BottomMenu(self):
+        Label(self.BottomFrame, text="Made by Frédéric Carrier").pack()
         
     def _LoadCharacters(self):
         self.CharacterListView.ShowCharacterButtons(self.CharacterListData.GetCharacterList(self.Settings))
