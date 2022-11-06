@@ -1,5 +1,4 @@
 from numpy import character
-import ItemViewer as ItemViewerClass
 from ButtonBar import ButtonBar
 
 from tkinter import *
@@ -64,9 +63,10 @@ class ItemListView:
         
         i = 0
         for item in list:
-            if filter.lower() in item.GetName().lower():
+            name = item.GetName() if hasattr(item,'GetName') else item.GetData().GetName()
+            if filter.lower() in name.lower():
                 i += 1
-                self.listBox.insert(i, item.GetName())
+                self.listBox.insert(i, name)
 
         self.listBox.bind('<<ListboxSelect>>', self.OnItemSelected)
 
@@ -75,30 +75,31 @@ class ItemListView:
 
     def OnItemSelected(self, event):
         itemName = self.listBox.get(ANCHOR)
-        self.hGH.CharacterListView.ShowCharacterWindowWithCurrentItem(itemName)
+        self.hGH.CharacterListView.ShowCharacterWithCurrentItem(itemName)
 
     def OnItemSelectedFromInventory(self, event):
-        itemView = ItemViewerClass.ItemViewer(self.hGH)
+        itemName = self.listBox.get(ANCHOR)
         if len(event) > 0:
-            itemView.ShowItemWindow(event[0])
+            for e in event:
+                if e.GetData().GetName() == itemName:
+                    self.hGH.ItemViewer.ShowItem(e)
+                    return
 
     def __init__(self, hgh, itemList):
         self.fullList = itemList.UniqueList + itemList.SetList + itemList.RuneList
 
         self.hGH = hgh
-        self.ItemListOptions = Frame(self.hGH.CurrentViewFrame)
-        self.ItemListFrame = Frame(self.hGH.CurrentViewFrame)
+        self.ItemListOptions = Frame(self.hGH.ItemListViewFrame)
+        self.ItemListFrame = Frame(self.hGH.ItemListViewFrame)
 
         self.SearchBar()
         self.FilterBar()
-        self.ItemListOptions.pack(side=TOP)
+        self.ItemListOptions.pack(side=TOP, fill = BOTH)
 
         Button(self.ItemListOptions, text='(A)dd Item', width=30, command=lambda: self.hGH.ScreenCapture.AreaSelect()).grid(row=2, columnspan=6)
         self.ItemListOptions.bind('a', lambda e: self.main.ScreenCapture.AreaSelect())
 
         Label(self.ItemListOptions, text='Item List:').grid(row=3, column=0, columnspan=6)
-
-        self.ItemListFrame.pack(side=BOTTOM, fill=BOTH, expand=True)
 
         self.listBox = Listbox(self.ItemListFrame)
         self.listBox.pack(side = LEFT, fill = BOTH)
@@ -106,4 +107,4 @@ class ItemListView:
         self.scrollbar.pack(side = RIGHT, fill = BOTH)
         self.listBox.config(yscrollcommand = self.scrollbar.set)
         self.scrollbar.config(command = self.listBox.yview)
-        self.ItemListFrame.pack()
+        self.ItemListFrame.pack(side=LEFT, fill=BOTH, expand=True)

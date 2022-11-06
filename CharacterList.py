@@ -3,24 +3,64 @@ import Character as CharacterClass
 import Inventory as InventoryClass
 import Item as ItemClass
 
+import Settings as SettingsClass
+import StashTabList as StashTabListClass
+
 class CharacterList:
-    def GetCharacterList(self, settings):
+    def GetCharacterList(self, settings, filterName=''):
         result = []
         for character in self.characters:
-            if settings.GameType == 'Online' and not character.GetIsOnline() \
-                or settings.GameType == 'Offline' and character.GetIsOnline():
+            if filterName != '' and filterName not in character.GetName():
                 continue
 
             if settings.IsHardcore and not character.GetIsHardcore() \
                 or not settings.IsHardcore and character.GetIsHardcore():
                 continue
 
-            if settings.GameType == 'Ladder' and not character.GetIsLadder():
+            if character.GetIsLadder() and not settings.GameType == 'Ladder' \
+                or not character.GetIsLadder() and settings.GameType == 'Ladder':
                 continue
-            
+            elif not character.GetIsLadder():
+                if character.GetIsOnline() and not settings.GameType == 'Online':
+                   continue
+
+                if not character.GetIsOnline() and not settings.GameType == 'Offline':
+                    continue
+
+            print("CharacterList GetCharacterList| " + settings.GameType + " : " + str(character.GetIsLadder()) + " : " + character.GetFullPath())
             result.append(character)
 
+        result.sort(key=lambda x: x.GetName().lower())
         return result
+
+    def InitStashTabs(self):
+        self.StashTabs = []
+
+        settings = SettingsClass.Settings('Online', False)
+        self.StashTabs.append(StashTabListClass.StashTabList(self.GetCharacterList(settings, '_StashTab'), settings))
+
+        settings = SettingsClass.Settings('Online', True)
+        self.StashTabs.append(StashTabListClass.StashTabList(self.GetCharacterList(settings, '_StashTab'), settings))
+
+        settings = SettingsClass.Settings('Offline', False)
+        self.StashTabs.append(StashTabListClass.StashTabList(self.GetCharacterList(settings, '_StashTab'), settings))
+
+        settings = SettingsClass.Settings('Offline', True)
+        self.StashTabs.append(StashTabListClass.StashTabList(self.GetCharacterList(settings, '_StashTab'), settings))
+
+        settings = SettingsClass.Settings('Ladder', False)
+        self.StashTabs.append(StashTabListClass.StashTabList(self.GetCharacterList(settings, '_StashTab'), settings))
+
+        settings = SettingsClass.Settings('Ladder', True)
+        self.StashTabs.append(StashTabListClass.StashTabList(self.GetCharacterList(settings, '_StashTab'), settings))
+
+    def MinStashTabs(self):
+        return min(len(self.StashTabs[0].Tabs), len(self.StashTabs[1].Tabs), len(self.StashTabs[2].Tabs), len(self.StashTabs[3].Tabs), len(self.StashTabs[4].Tabs), len(self.StashTabs[5].Tabs))
+
+    def UpdateStashTabs(self, number):
+        for tab in self.StashTabs:
+            for count in range(len(tab.Tabs), number):
+                self.CreateCharacter(('_StashTab_' + str(count + 1)), tab.Settings.GameType, tab.Settings.IsHardcore)
 
     def CreateCharacter(self, characterName, gameType, isHardcore):
         onlinePath = os.path.join(gameType, ('Hardcore' if isHardcore else 'Softcore'))
@@ -30,7 +70,7 @@ class CharacterList:
 
         if not os.path.isdir(fullpath):
             os.mkdir(fullpath)
-            character = self._CreateCharacter(fullpath, characterName)
+            character = self._CreateCharacter(path, characterName)
             self.characters.append(character)
             self.characters.sort(key=lambda char: char.GetName().lower())
         else:
@@ -70,17 +110,20 @@ class CharacterList:
                 with os.scandir(gamePath) as Hardcores:
                     for Hardcore in Hardcores:
                         currentPath = os.path.join(gamePath, Hardcore.name)
-                    with os.scandir(currentPath) as Characters:
-                        for Character in Characters:
-                            character = self._CreateCharacter(currentPath, Character.name)
-                            self.characters.append(character)
-                            itemPath = os.path.join(currentPath, Character.name)
-                            with os.scandir(itemPath) as Items:
-                                for itemFile in Items:
-                                    #find item Data and fill it
-                                    itemData = itemList.GetItemFromName(itemFile.name.split('.')[0], None)
-                                    item = ItemClass.Item(itemFile.name, itemPath, itemData)
-                                    character.GetInventory().AddItemToInventory(item)
+                        with os.scandir(currentPath) as Characters:
+                            for Character in Characters:
+                                character = self._CreateCharacter(currentPath, Character.name)
+                                self.characters.append(character)
+                                itemPath = os.path.join(currentPath, Character.name)
+                                with os.scandir(itemPath) as Items:
+                                    for itemFile in Items:
+                                        #find item Data and fill it
+                                        itemData = itemList.GetItemFromName(itemFile.name.split('.')[0], None)
+                                        item = ItemClass.Item(itemFile.name, itemPath, itemData)
+                                        character.GetInventory().AddItemToInventory(item)
+        
+
+        self.InitStashTabs()
 
     def _CreateCharacter(self, dirpath, dirName):
         characterInv = InventoryClass.Inventory()

@@ -2,7 +2,7 @@ import os
 import shutil
 
 from tkinter import *
-from PIL import ImageTk
+from PIL import ImageTk, Image
 
 import GlobalWindowSettings as GlobalWindowSettingsClass
 
@@ -11,9 +11,9 @@ class ItemViewer:
         win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
 
         i = 0
-        for character in self.hGH.CharacterList.characters:
+        for character in self.HGH.CharacterListData.GetCharacterList(self.HGH.Settings):
             i += 1
-            if character != self.hGH.CharacterList.GetCurrentCharacter():
+            if character != self.HGH.CharacterListView.GetCurrentCharacter():
                 Button(win, text=character.GetName(), width=30,  command= lambda win=win, c=character, i=item: self._SelectCharacter(win, c, i)).grid(row=i, column=0)
 
     def _UpdateImage(self):
@@ -31,40 +31,49 @@ class ItemViewer:
                     name = name + '_' + str(i)
                     break
 
-        shutil.move('.\\' + item.GetFullPath(), os.path.join(character.GetFullPath(), name + ".jpg"))
+        shutil.move('.\\' + item.GetPath(), os.path.join(character.GetFullPath(), name + ".jpg"))
         win.destroy()
     
     def _DeleteItem(self, item, win=None):
-        self.hGH.CharacterListView.GetCurrentCharacter().GetInventory().RemoveItemFromInventory(item)
+        self.HGH.CharacterListView.GetCurrentCharacter().GetInventory().RemoveItemFromInventory(item)
         item.Delete()
-        self.hGH.ItemListView.ShowItemList(self.hGH.CharacterListView.GetCurrentCharacter().GetInventory().GetList())
+        self.HGH.ItemListView.ShowItemList(self.HGH.CharacterListView.GetCurrentCharacter().GetInventory().GetList())
         if win:
             win.destroy()
 
-    def ShowItemWindow(self, item):
-        win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
+    def ShowItem(self, item):
+        self.HGH.ClearItemViewFrame()
+      
+        self.ItemName = Label(self.HGH.ItemViewFrame, text=item.GetData().GetName())
+        self.ItemName.pack(side=TOP)
 
-        Label(win, text=item.GetData().GetName()).pack(side=TOP)
+        itemImage = Image.open(item.GetFullPath())
+        #itemImage = Image.open('./Icons/holygrailicon.png')
+        self.ItemImage = ImageTk.PhotoImage(itemImage)
 
-        win.itemImage = ImageTk.PhotoImage(file=item.GetFullPath())
+        #canvas = Canvas(self.HGH.ItemViewFrame)
+        #canvas.create_image(image=image)
+        #canvas.pack()
 
-        buttonsFrame = Frame(win)
+        print(item.GetData().GetName())
+        self.ItemImageDisplay = Label(self.HGH.ItemViewFrame, image=self.ItemImage)
+        self.ItemImageDisplay.pack()
 
-        Label(win, image=win.itemImage).pack()
+        buttonFrame = Frame(self.HGH.ItemViewFrame)
 
-        Button(buttonsFrame, text='(U)pdate Image', width=30,  command= lambda: self.hGH.ScreenCapture.AreaSelect()).grid(row=0, column=0, sticky=W, pady=4)
-        win.bind('u', lambda e: self.hGH.ScreenCapture.AreaSelect())
+        self.UpdateImage = Button(buttonFrame, text='(U)pdate Image', width=30,  command= lambda: self.HGH.ScreenCapture.AreaSelect()).grid(row=0, column=0, sticky=W, pady=4)
+        self.MoveToChar = Button(buttonFrame, text='(M)ove to other Character', width=30,  command= lambda i=item: self._MoveToOtherCharacter(i)).grid(row=0, column=1, sticky=W, pady=4)
+        self.DeleteItem = Button(buttonFrame, text='(D)elete', width=30,  command= lambda: self._DeleteItem(item, self.HGH.ItemViewerWindow)).grid(row=0, column=2, sticky=W, pady=4)
+        buttonFrame.pack()
+        #self.HGH.ItemViewerWindow.bind('d', lambda e: self._DeleteItem(item, self.HGH.ItemViewFrame))
 
-        Button(buttonsFrame, text='(M)ove to other Character', width=30,  command= lambda i=item: self._MoveToOtherCharacter(i)).grid(row=0, column=0, sticky=W, pady=4)
-        win.bind('m', lambda e: self._MoveToOtherCharacter())
-
-        Button(buttonsFrame, text='(D)elete', width=30,  command= lambda: self._DeleteItem(item, win)).grid(row=0, column=1, sticky=W, pady=4)
-        win.bind('d', lambda e: self._DeleteItem(item, win))
-
-        Button(buttonsFrame, text='(C)lose', width=30,  command= lambda: win.destroy()).grid(row=0, column=2, sticky=W, pady=4)
-        win.bind('c', lambda e: win.destroy())
-
-        buttonsFrame.pack()
-
-    def __init__(self, HGH):
-        self.hGH = HGH
+    def __init__(self, hgh):
+        self.HGH = hgh
+        self.Frame = None
+        self.ItemName = None
+        self.ItemImage = None
+        self.ItemImageDisplay = None
+        self.UpdateImage = None
+        self.MoveToChar = None
+        self.DeleteItem = None
+        self.CloseWindow = None

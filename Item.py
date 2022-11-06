@@ -8,10 +8,10 @@ class Item:
         return self.path
 
     def GetFullPath(self):
-        return os.path.join(self.path, self.imageFile)
+        return self.fullPath
 
     def Delete(self):
-        os.remove(self.GetFullPath())
+        os.remove('./' + self.GetFullPath())
 
     def Size(self):
         return 0
@@ -19,4 +19,5 @@ class Item:
     def __init__(self, imageFile, imagePath, itemData):
         self.imageFile = imageFile
         self.path = imagePath
+        self.fullPath = os.path.join(imagePath, imageFile)
         self.itemData = itemData

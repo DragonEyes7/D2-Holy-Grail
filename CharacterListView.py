@@ -1,9 +1,3 @@
-import os
-
-import Character as CharacterClass
-import Inventory as InventoryClass
-import ItemViewer as ItemViewerClass
-
 from tkinter import *
 from ButtonBar import ButtonBar
 
@@ -13,11 +7,12 @@ class CharacterListView:
     def GetCurrentCharacter(self):
         return self.currentCharacter if hasattr(self, 'currentCharacter') else None
 
-    def ShowCharacterWindowWithCurrentItem(self, itemName):
-        win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
+    def ShowCharacterWithCurrentItem(self, itemName):
+        self.HGH.ClearItemViewFrame()
+
         found = False
         i = 0
-        for character in self.main.CharacterListData.GetCharacterList(self.main.Settings):
+        for character in self.HGH.CharacterListData.GetCharacterList(self.HGH.Settings):
             i += 1
             for item in character.GetInventory().GetList():
                 if itemName == item.GetData().GetName():
@@ -26,7 +21,7 @@ class CharacterListView:
                     found = True
 
         if not found:
-            Label(win, text='No Character found with this item').grid()
+            Label(self.HGH.ItemViewFrame, text='No Character found with this item').grid()
 
     def UpdateBarSelect(self, pickname):
         pass
@@ -52,8 +47,8 @@ class CharacterListView:
         ErrorLabel = Label(win, text='')
         ErrorLabel.grid(row=2)
 
-        Button(win, text='Create', width=30,  command= lambda: self._CreateCharacterFolder(characterNameInput.get(), ErrorLabel,  bar.GetSelected(), boolvar.get())).grid(row=3, column=0, sticky=W, pady=4)
-        win.bind('<Return>', lambda e: self._CreateCharacterFolder(characterNameInput.get(), ErrorLabel))
+        Button(win, text='Create', width=30,  command=lambda: self._CreateCharacterFolder(characterNameInput.get(), ErrorLabel, bar.GetSelected(), boolvar.get())).grid(row=3, column=0, sticky=W, pady=4)
+        win.bind('<Return>', lambda e: self._CreateCharacterFolder(characterNameInput.get(), ErrorLabel, bar.GetSelected(), boolvar.get()))
 
         Button(win, text='Close', width=30,  command= lambda: win.destroy()).grid(row=3, column=1, sticky=W, pady=4)
 
@@ -69,12 +64,16 @@ class CharacterListView:
             button[0].destroy()
             button[1].destroy()
 
+        self.CharacterButtons = []
+
+        self._UnselectCharacter()
+
     def ShowCharacterButtons(self, characterList, clear = False):
         if clear:
             self.ClearList()
         else:
             Label(self.TKContainer, text='Character List:').grid(row=0)
-            Button(self.TKContainer, text='Create Character', width=30,  command=self.main.CharacterListView.CreateCharacterWindow).grid(row=1)
+            Button(self.TKContainer, text='Create Character', width=30,  command=self.HGH.CharacterListView.CreateCharacterWindow).grid(row=1)
             self.CharacterButtons = []
 
         #Maybe change the delete by an icon
@@ -102,25 +101,25 @@ class CharacterListView:
             self.Label.grid(row=1)
 
     def _ShowItem(self, character, itemName):
-        itemView = ItemViewerClass.ItemViewer(self.main)
         item = character.GetInventory().GetItemFromName(itemName)
         if item:
-            itemView.ShowItemWindow(item)
+            self.HGH.ItemViewer.ShowItem(item)
         
     def _CharacterNameEntryChanged(self, ErrorLabel, sv):
         ErrorLabel['text'] = ''
 
     def _CreateCharacterFolder(self, characterName, ErrorLabel, gameType, isHardcore):
-        result = self.main.CharacterListData.CreateCharacter(characterName, gameType, isHardcore)
+        result = self.HGH.CharacterListData.CreateCharacter(characterName, gameType, isHardcore)
         ErrorLabel['text'] = result[1]
 
         if result[0] != None:
             self.ShowCharacterButtons(result[0],True)
 
     def _DeleteCharacter(self, character):
-        result = self.main.CharacterListData.DeleteCharacter(character)
-        Label(self.root, text=result[0]).pack()
-        self.ShowCharacterButtons(result[1], True)
+        result = self.HGH.CharacterListData.DeleteCharacter(character)
+        self.HGH.ErrorMessage(result[0])
+        if result[1] != None:
+            self.ShowCharacterButtons(result[1], True)
 
     def _SelectCharacter(self, character):
         if not hasattr(self, 'currentCharacter'):
@@ -133,23 +132,22 @@ class CharacterListView:
             pass
 
         self.currentCharacter = character
-        self.main.ItemListView.ShowItemListFromInventory(self.currentCharacter.GetInventory().GetList())
+        self.HGH.ItemListView.ShowItemListFromInventory(self.currentCharacter.GetInventory().GetList())
         self._UpdateSelectedCharacter()
 
     def _UnselectCharacter(self):
         self.currentCharacter = None
         self._UpdateSelectedCharacter()
-        self.main.ItemListView.ShowAllItemList()
+        self.HGH.ItemListView.ShowAllItemList()
     
     def _UpdateSelectedCharacter(self):
         for btn in self.CharacterButtons:
             if self.currentCharacter is not None and btn[0]['text'] == self.currentCharacter.GetName():
-                print(btn[0]['text'])
                 btn[0].configure(bg='green')
             else:
                 btn[0].configure(bg='white')
     
-    def __init__(self, main, root, tkContainer):
+    def __init__(self, hgh, root, tkContainer):
         self.root = root
-        self.main = main
+        self.HGH = hgh
         self.TKContainer = tkContainer

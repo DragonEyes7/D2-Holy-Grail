@@ -8,6 +8,8 @@ import numpy as nm
 import pytesseract
 from PIL import ImageEnhance, ImageGrab, ImageTk
 
+import Item as ItemClass
+
 import GlobalWindowSettings as GlobalWindowSettingsClass
 
 class ScreenCapture:
@@ -44,7 +46,7 @@ class ScreenCapture:
 
             itemData = self.HGH.ItemList.GetItemFromName(itemName, typeName)
 
-            if item:
+            if itemData:
                 itemName = itemData.GetName()
                 typeName = itemData.GetType()
             
@@ -75,17 +77,18 @@ class ScreenCapture:
         win.wait_window(win)
 
     def ReadImageToString(self, image):
-        pytesseract.pytesseract.tesseract_cmd = r'I:\\Apps\\Tesseract-OCR\\tesseract.exe'
+        pytesseract.pytesseract.tesseract_cmd = r'.\\Tesseract-OCR\\tesseract.exe'
 
         return pytesseract.image_to_string(cv2.cvtColor(nm.array(image), cv2.COLOR_BGR2GRAY), lang ='eng')
 
     def SaveImage(self, win, rgbImg, itemData):
         fileName = itemData.GetName() + ".jpg"
-        itemPath = os.path.join(self.HGH.CharacterListView.GetCurrentCharacter().GetFullPath(), fileName)
-        rgbImg.save(itemPath, "JPEG")
+        imagePath = self.HGH.CharacterListView.GetCurrentCharacter().GetFullPath()
+        itemFullPath = os.path.join(imagePath, fileName)
+        rgbImg.save(itemFullPath, "JPEG")
         rgbImg.close()
 
-        item = ItemClass.Item(fileName, itemPath, itemData)
+        item = ItemClass.Item(fileName, imagePath, itemData)
         self.HGH.CharacterListView.currentCharacter.GetInventory().AddItemToInventory(item)
         self.HGH.ItemListView.ShowItemListFromInventory(self.HGH.CharacterListView.currentCharacter.GetInventory().GetList())
 
