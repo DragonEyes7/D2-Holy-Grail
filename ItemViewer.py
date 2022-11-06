@@ -20,26 +20,26 @@ class ItemViewer:
         #take an other screenshot to update te picture
         pass
 
-    def _SelectCharacter(self, win, character, item):
-        name = item.GetData().GetName()
+    def _SelectCharacter(self, win, destinationCharacter, item):
+        itemName = item.GetData().GetName()
 
-        if os.path.isfile(os.path.join(character.GetFullPath(), name + ".jpg")):
+        #Make sure the destination character doesn't have a copy of this item
+        if os.path.isfile(os.path.join(destinationCharacter.GetFullPath(), itemName + ".jpg")):
             i = 0
             while True:
                 i = i + 1
-                if not os.path.isfile(os.path.join(character.GetFullPath(), (name + '_' + str(i) + ".jpg"))):
-                    name = name + '_' + str(i)
+                if not os.path.isfile(os.path.join(destinationCharacter.GetFullPath(), (itemName + '_' + str(i) + ".jpg"))):
+                    itemName = itemName + '_' + str(i)
                     break
 
-        shutil.move('.\\' + item.GetPath(), os.path.join(character.GetFullPath(), name + ".jpg"))
+        shutil.move('.\\' + item.GetFullPath(), os.path.join(destinationCharacter.GetFullPath(), itemName + ".jpg"))
         win.destroy()
     
     def _DeleteItem(self, item, win=None):
         self.HGH.CharacterListView.GetCurrentCharacter().GetInventory().RemoveItemFromInventory(item)
         item.Delete()
         self.HGH.ItemListView.ShowItemList(self.HGH.CharacterListView.GetCurrentCharacter().GetInventory().GetList())
-        if win:
-            win.destroy()
+        self.HGH.ClearItemViewFrame()
 
     def ShowItem(self, item):
         self.HGH.ClearItemViewFrame()
@@ -48,12 +48,7 @@ class ItemViewer:
         self.ItemName.pack(side=TOP)
 
         itemImage = Image.open(item.GetFullPath())
-        #itemImage = Image.open('./Icons/holygrailicon.png')
         self.ItemImage = ImageTk.PhotoImage(itemImage)
-
-        #canvas = Canvas(self.HGH.ItemViewFrame)
-        #canvas.create_image(image=image)
-        #canvas.pack()
 
         print(item.GetData().GetName())
         self.ItemImageDisplay = Label(self.HGH.ItemViewFrame, image=self.ItemImage)
@@ -64,8 +59,9 @@ class ItemViewer:
         self.UpdateImage = Button(buttonFrame, text='(U)pdate Image', width=30,  command= lambda: self.HGH.ScreenCapture.AreaSelect()).grid(row=0, column=0, sticky=W, pady=4)
         self.MoveToChar = Button(buttonFrame, text='(M)ove to other Character', width=30,  command= lambda i=item: self._MoveToOtherCharacter(i)).grid(row=0, column=1, sticky=W, pady=4)
         self.DeleteItem = Button(buttonFrame, text='(D)elete', width=30,  command= lambda: self._DeleteItem(item, self.HGH.ItemViewerWindow)).grid(row=0, column=2, sticky=W, pady=4)
-        buttonFrame.pack()
         #self.HGH.ItemViewerWindow.bind('d', lambda e: self._DeleteItem(item, self.HGH.ItemViewFrame))
+
+        buttonFrame.pack()
 
     def __init__(self, hgh):
         self.HGH = hgh
