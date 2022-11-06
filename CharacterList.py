@@ -26,8 +26,7 @@ class CharacterList:
 
                 if not character.GetIsOnline() and not settings.GameType == 'Offline':
                     continue
-
-            print("CharacterList GetCharacterList| " + settings.GameType + " : " + str(character.GetIsLadder()) + " : " + character.GetFullPath())
+                
             result.append(character)
 
         result.sort(key=lambda x: x.GetName().lower())

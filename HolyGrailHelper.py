@@ -25,7 +25,8 @@ class HolyGrailHelper:
         self.CharacterListView.ShowCharacterButtons(self.CharacterListData.GetCharacterList(self.Settings), True)
 
     def ErrorMessage(self, errorMessage):
-        print("HolyGrailHelper ErrorMessage| " + errorMessage)
+        self.ClearItemViewFrame()
+        Label(self.ItemViewFrame, text=errorMessage).pack()
 
     def ClearItemViewFrame(self):
         self.ItemViewFrame.destroy()

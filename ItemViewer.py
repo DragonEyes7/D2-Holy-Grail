@@ -49,8 +49,7 @@ class ItemViewer:
 
         itemImage = Image.open(item.GetFullPath())
         self.ItemImage = ImageTk.PhotoImage(itemImage)
-
-        print(item.GetData().GetName())
+        
         self.ItemImageDisplay = Label(self.HGH.ItemViewFrame, image=self.ItemImage)
         self.ItemImageDisplay.pack()
 
