@@ -23,9 +23,6 @@ class CharacterListView:
         if not found:
             Label(self.HGH.ItemViewFrame, text='No Character found with this item').grid()
 
-    def UpdateBarSelect(self, pickname):
-        pass
-
     def CreateCharacterWindow(self):
         win = GlobalWindowSettingsClass.GlobalWindowSettings().InitNewWindow()
 

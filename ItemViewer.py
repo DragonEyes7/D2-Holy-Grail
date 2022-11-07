@@ -16,10 +16,6 @@ class ItemViewer:
             if character != self.HGH.CharacterListView.GetCurrentCharacter():
                 Button(win, text=character.GetName(), width=30,  command= lambda win=win, c=character, i=item: self._SelectCharacter(win, c, i)).grid(row=i, column=0)
 
-    def _UpdateImage(self):
-        #take an other screenshot to update te picture
-        pass
-
     def _SelectCharacter(self, win, destinationCharacter, item):
         itemName = item.GetData().GetName()
 
@@ -32,10 +28,19 @@ class ItemViewer:
                     itemName = itemName + '_' + str(i)
                     break
 
-        shutil.move('.\\' + item.GetFullPath(), os.path.join(destinationCharacter.GetFullPath(), itemName + ".jpg"))
+        newPath = os.path.join(destinationCharacter.GetFullPath(), itemName + ".jpg")
+        shutil.move('.\\' + item.GetFullPath(), newPath)
         win.destroy()
+
+        item.SetPath(destinationCharacter.GetFullPath())
+        item.SetFullPath(newPath)
+        destinationCharacter.GetInventory().AddItemToInventory(item)
+        self.HGH.CharacterListView.GetCurrentCharacter().GetInventory().RemoveItemFromInventory(item)
+
+        #Refresh item list
+        self.HGH.ItemListView.ShowItemListFromInventory(self.HGH.CharacterListView.GetCurrentCharacter().GetInventory().GetList())
     
-    def _DeleteItem(self, item, win=None):
+    def _DeleteItem(self, item):
         self.HGH.CharacterListView.GetCurrentCharacter().GetInventory().RemoveItemFromInventory(item)
         item.Delete()
         self.HGH.ItemListView.ShowItemList(self.HGH.CharacterListView.GetCurrentCharacter().GetInventory().GetList())
@@ -57,7 +62,7 @@ class ItemViewer:
 
         self.UpdateImage = Button(buttonFrame, text='(U)pdate Image', width=30,  command= lambda: self.HGH.ScreenCapture.AreaSelect()).grid(row=0, column=0, sticky=W, pady=4)
         self.MoveToChar = Button(buttonFrame, text='(M)ove to other Character', width=30,  command= lambda i=item: self._MoveToOtherCharacter(i)).grid(row=0, column=1, sticky=W, pady=4)
-        self.DeleteItem = Button(buttonFrame, text='(D)elete', width=30,  command= lambda: self._DeleteItem(item, self.HGH.ItemViewerWindow)).grid(row=0, column=2, sticky=W, pady=4)
+        self.DeleteItem = Button(buttonFrame, text='(D)elete', width=30,  command= lambda: self._DeleteItem(item)).grid(row=0, column=2, sticky=W, pady=4)
         #self.HGH.ItemViewerWindow.bind('d', lambda e: self._DeleteItem(item, self.HGH.ItemViewFrame))
 
         buttonFrame.pack()

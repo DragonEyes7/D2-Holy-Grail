@@ -7,8 +7,14 @@ class Item:
     def GetPath(self):
         return self.path
 
+    def SetPath(self, path):
+        self.path = path
+
     def GetFullPath(self):
         return self.fullPath
+
+    def SetFullPath(self, newFullPath):
+        self.fullPath = newFullPath
 
     def Delete(self):
         os.remove('./' + self.GetFullPath())
