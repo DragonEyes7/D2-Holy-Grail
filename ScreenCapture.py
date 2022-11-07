@@ -65,7 +65,7 @@ class ScreenCapture:
 
             nameFrame.pack()
         
-            Button(win, text='(S)ave', width=30, command=lambda: self.SaveImage(win, rgbImg, itemData)).pack(in_=bottom, side=LEFT)
+            Button(win, text='(S)ave', width=30, command=lambda: self.SaveImage(win, rgbImg, itemData, itemNameInput, itemTypeInput)).pack(in_=bottom, side=LEFT)
             #Don't save when typing in the entry
             #win.bind('s', lambda e: self.SaveImage(win, rgbImg, itemNameInput.get()))
 
@@ -81,7 +81,10 @@ class ScreenCapture:
 
         return pytesseract.image_to_string(cv2.cvtColor(nm.array(image), cv2.COLOR_BGR2GRAY), lang ='eng')
 
-    def SaveImage(self, win, rgbImg, itemData):
+    def SaveImage(self, win, rgbImg, itemData, itemNameInput, itemTypeInput):
+        if itemNameInput.get() != itemData.GetName() or itemTypeInput.get() != itemData.GetType():
+            itemData = self.HGH.ItemList.GetItemFromName(itemNameInput.get(), itemTypeInput.get())
+
         fileName = itemData.GetName() + ".jpg"
         imagePath = self.HGH.CharacterListView.GetCurrentCharacter().GetFullPath()
         itemFullPath = os.path.join(imagePath, fileName)
