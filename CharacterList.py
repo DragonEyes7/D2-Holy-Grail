@@ -1,3 +1,4 @@
+from logging import root
 import os
 import Character as CharacterClass
 import Inventory as InventoryClass
@@ -68,7 +69,7 @@ class CharacterList:
         List = None
 
         if not os.path.isdir(fullpath):
-            os.mkdir(fullpath)
+            os.makedirs(fullpath)
             character = self._CreateCharacter(path, characterName)
             self.characters.append(character)
             self.characters.sort(key=lambda char: char.GetName().lower())
@@ -103,26 +104,44 @@ class CharacterList:
         gamePath = ''
         currentPath = ''
 
-        with os.scandir(rootPath) as GameTypes:
-            for GameType in GameTypes:
-                gamePath = os.path.join(rootPath, GameType.name)
-                with os.scandir(gamePath) as Hardcores:
-                    for Hardcore in Hardcores:
-                        currentPath = os.path.join(gamePath, Hardcore.name)
-                        with os.scandir(currentPath) as Characters:
-                            for Character in Characters:
-                                character = self._CreateCharacter(currentPath, Character.name)
-                                self.characters.append(character)
-                                itemPath = os.path.join(currentPath, Character.name)
-                                with os.scandir(itemPath) as Items:
-                                    for itemFile in Items:
-                                        #find item Data and fill it
-                                        itemData = itemList.GetItemFromName(itemFile.name.split('.')[0], None)
-                                        item = ItemClass.Item(itemFile.name, itemPath, itemData)
-                                        character.GetInventory().AddItemToInventory(item)
-        
-
         self.InitStashTabs()
+
+        if os.path.exists(rootPath):
+            with os.scandir(rootPath) as GameTypes:
+                for GameType in GameTypes:
+                    gamePath = os.path.join(rootPath, GameType.name)
+                    with os.scandir(gamePath) as Hardcores:
+                        for Hardcore in Hardcores:
+                            currentPath = os.path.join(gamePath, Hardcore.name)
+                            with os.scandir(currentPath) as Characters:
+                                for Character in Characters:
+                                    character = self._CreateCharacter(currentPath, Character.name)
+                                    self.characters.append(character)
+                                    itemPath = os.path.join(currentPath, Character.name)
+                                    with os.scandir(itemPath) as Items:
+                                        for itemFile in Items:
+                                            #find item Data and fill it
+                                            itemData = itemList.GetItemFromName(itemFile.name.split('.')[0], None)
+                                            item = ItemClass.Item(itemFile.name, itemPath, itemData)
+                                            character.GetInventory().AddItemToInventory(item)
+        else:
+            #Todo change Modes everwhere to be in a global config
+            self._CreateCharacterFolder(rootPath, ['Ladder', 'Online', 'Offline'])
+            self.UpdateStashTabs(3)
+        
+    def _CreateCharacterFolder(self, rootPath, GameTypes):
+        os.makedirs(rootPath)
+
+        for GameType in GameTypes:
+            gamePath = os.path.join(rootPath, GameType)
+            os.makedirs(gamePath)
+            self._CreateCharacterSubFolders(gamePath)
+
+    def _CreateCharacterSubFolders(self, path):
+        path1 = os.path.join(path, 'Hardcore')
+        os.makedirs(path1)
+        path2 = os.path.join(path, 'Softcore')
+        os.makedirs(path2)
 
     def _CreateCharacter(self, dirpath, dirName):
         characterInv = InventoryClass.Inventory()

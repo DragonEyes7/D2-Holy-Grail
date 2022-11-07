@@ -70,13 +70,18 @@ class CharacterListView:
             self.ClearList()
         else:
             Label(self.TKContainer, text='Character List:').grid(row=0)
-            Button(self.TKContainer, text='Create Character', width=30,  command=self.HGH.CharacterListView.CreateCharacterWindow).grid(row=1)
+            Button(self.TKContainer, text='Create Character', width=25,  command=self.HGH.CharacterListView.CreateCharacterWindow).grid(row=1)
             self.CharacterButtons = []
-
+            
+        if not hasattr(self, '_Unselected') or self._Unselected == None:
+           self._Unselected = Button(self.TKContainer, text='Unselect Character', width=15,  command= lambda: self._UnselectCharacter())
+           self._Unselected.grid(row=1, column=1)
+        
+        Label(self.TKContainer, text=' ', width=5).grid(row=1, column=2)
         #Maybe change the delete by an icon
         #self.hGH.CharacterListFrame.deleteIcon = ImageTk.PhotoImage(file='Icons\\delete-folder.png')
         
-        i = 2
+        i = 3
         for character in characterList:
             color = 'white'
             if hasattr(self, 'currentCharacter') and character == self.currentCharacter:
@@ -89,13 +94,10 @@ class CharacterListView:
             self.CharacterButtons.append((btn, btn2))
             i += 1
 
-        if not hasattr(self, '_Unselected') or self._Unselected == None:
-           self._Unselected = Button(self.TKContainer, text='Unselect Character', width=30,  command= lambda: self._UnselectCharacter())
-           self._Unselected.grid(row=i, column=0)
         
         if len(characterList) <= 0:
             self.Label = Label(self.TKContainer, text='No Character')
-            self.Label.grid(row=1)
+            self.Label.grid(row=i)
 
     def _ShowItem(self, character, itemName):
         item = character.GetInventory().GetItemFromName(itemName)
@@ -148,3 +150,7 @@ class CharacterListView:
         self.root = root
         self.HGH = hgh
         self.TKContainer = tkContainer
+
+    #Used by ButtonBar to update the selection, not needed but still called
+    def UpdateBarSelect(self, pickName):
+        pass
