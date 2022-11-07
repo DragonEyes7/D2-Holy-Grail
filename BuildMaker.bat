@@ -1,1 +1,1 @@
-pyinstaller.exe --onefile --paths=".\.venv\Lib\site-packages"  main.py
+pyinstaller.exe --paths=".\venv\Lib\site-packages" --onefile --name "D2 Inventory Manager" --icon=C:\Projects\Python\D2-Holy-Grail\Icons\ChestIcon.ico main.py

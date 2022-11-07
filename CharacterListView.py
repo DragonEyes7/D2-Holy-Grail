@@ -16,8 +16,8 @@ class CharacterListView:
             i += 1
             for item in character.GetInventory().GetList():
                 if itemName == item.GetData().GetName():
-                    Button(win, text=character.GetName(), width=30,  command= lambda c=character: self._SelectCharacter(c)).grid(row=i, column=0)
-                    Button(win, text='Show Item', width=9, command= lambda c=character, i=itemName: self._ShowItem(c, i)).grid(row=i, column=1)
+                    Button(self.HGH.ItemViewFrame, text=character.GetName(), width=30,  command= lambda c=character: self._SelectCharacter(c)).grid(row=i, column=0)
+                    Button(self.HGH.ItemViewFrame, text='Show Item', width=9, command= lambda c=character, i=itemName: self._ShowItem(c, i)).grid(row=i, column=1)
                     found = True
 
         if not found:

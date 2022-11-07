@@ -38,8 +38,8 @@ class HolyGrailHelper:
         self._MainMenu()
         self._BottomMenu()
 
-        self.TopFrame.pack(side=TOP, fill=X) #.grid(row=0, column=0, columnspan=2, sticky=N)
-        self.MainFrame.pack(fill=BOTH) #grid(row=2, columnspan=2)
+        self.TopFrame.pack(side=TOP, fill=X)
+        self.MainFrame.pack(fill=BOTH, expand=True)
         self.BottomFrame.pack(side=BOTTOM, fill=X)
 
         self.root.mainloop()
@@ -60,9 +60,9 @@ class HolyGrailHelper:
         self.root.focus_force()
         self.root.resizable()
 
-        self.root.title("Holy Grail Helper")
+        self.root.title("D2 Inventory Manager")
 
-        icon = PhotoImage(file='Icons\\holygrailicon.png')
+        icon = PhotoImage(file='Icons\\ChestIcon.png')
         self.root.iconphoto(True, icon)
 
         self.root.config(bg="#232b25")
